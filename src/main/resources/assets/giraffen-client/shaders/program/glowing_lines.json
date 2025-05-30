@@ -1,0 +1,13 @@
+{
+  "vertex": "giraffenhack:shaders/program/glowing_lines.vsh",
+  "fragment": "giraffenhack:shaders/program/glowing_lines.fsh",
+  "attributes": ["Position", "UV0"],
+  "uniforms": {
+    "cameraPosition": {
+      "type": "CAMERA_POSITION"
+    },
+    "time": {
+      "type": "TIME"
+    }
+  }
+}
