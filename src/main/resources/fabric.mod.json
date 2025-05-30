@@ -1,34 +1,34 @@
 {
-	"schemaVersion": 1,
-	"id": "giraffenhack",
-	"version": "${version}",
-	"name": "GiraffenHack",
-	"description": "This is an example description! Tell everyone what your mod is about!",
-	"authors": [
-		"Me!"
-	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "CC0-1.0",
-	"icon": "assets/giraffenhack/icon.png",
-	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"org.leycm.giraffen.GiraffenClient"
-		]
-	},
-	"mixins": [
-		"giraffenhack.mixins.json"
-	],
-	"depends": {
-		"fabricloader": ">=0.16.14",
-		"minecraft": "~1.21.4",
-		"java": ">=21",
-		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
-	}
+  "schemaVersion": 1,
+  "id": "giraffen-client",
+  "version": "${version}",
+  "name": "GiraffenClient",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "LeyCM"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/giraffen-client/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "org.leycm.giraffen.GiraffenClient"
+    ]
+  },
+  "mixins": [
+    "giraffen-client.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "minecraft": "~1.21.4",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
 }
