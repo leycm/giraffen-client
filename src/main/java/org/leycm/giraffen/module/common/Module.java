@@ -35,6 +35,10 @@ public abstract class Module {
         return false;
     }
 
+    public void register() {
+
+    }
+
     public void toggle() {running = !running ? enable() : disable();}
 
     protected abstract void onEnable();
