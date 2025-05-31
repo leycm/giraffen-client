@@ -2,7 +2,7 @@ package org.leycm.giraffen.module.common;
 
 import net.minecraft.client.MinecraftClient;
 
-public abstract class CrasherModule extends Module{
+public abstract class CrasherModule extends BaseModule {
     protected CrasherModule(String displayName, String category, String id) {
         super(displayName, category, id);
     }

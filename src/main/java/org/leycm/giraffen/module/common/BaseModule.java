@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
-public abstract class Module {
+public abstract class BaseModule {
     private final String displayName;
     private final String id;
     protected final StorageBase config;
@@ -33,7 +33,7 @@ public abstract class Module {
 
     protected boolean running;
 
-    public Module(String displayName, String category, String id) {
+    public BaseModule(String displayName, String category, String id) {
         Modules.instances.put(id, this);
 
         this.displayName = displayName;
@@ -99,7 +99,7 @@ public abstract class Module {
 
     private ArgumentBuilder<FabricClientCommandSource, ?> buildArgumentForField(int fieldIndex, int maxFields) {
         ArgumentBuilder<FabricClientCommandSource, ?> currentArg =
-                argument("field" + fieldIndex, StringArgumentType.string())
+                argument("value", StringArgumentType.string()) // TODO :
                         .suggests((ctx, builder) -> createFieldSuggestions(ctx, builder, fieldIndex))
                         .executes(ctx -> executeCommand(ctx, fieldIndex));
 
@@ -180,7 +180,6 @@ public abstract class Module {
             } else if (arguments.size() < setting.size()) {
                 int nextFieldIndex = arguments.size();
                 if (nextFieldIndex < setting.size()) {
-                    // Use empty string as placeholder for next field suggestions
                     String[] nextOptions = setting.toTabCompleter(nextFieldIndex, "");
                     String optionsText = nextOptions != null ? String.join(", ", nextOptions) : "keine Optionen verfügbar";
 
@@ -230,17 +229,19 @@ public abstract class Module {
 
     private Setting findSettingById(String id) {
         return settings.stream()
-                .filter(setting -> setting.getId().equals(id))
+                .filter(setting -> setting.getId().equals(id) && setting.isAccessible())
                 .findFirst()
                 .orElse(null);
     }
 
     private final SuggestionProvider<FabricClientCommandSource> SETTING_SUGGESTIONS =
             (ctx, builder) -> {
+                String arg = builder.getRemaining().toLowerCase();
+
                 for (Setting setting : settings) {
-                    GiraffenClient.LOGGER.info("setting: " + setting.getId() + "    isAccessible: " + setting.isAccessible());
-                    if (setting.isAccessible()) builder.suggest(setting.getId());
+                    if (setting.isAccessible() && setting.getId().startsWith(arg)) builder.suggest(setting.getId());
                 }
+
                 return builder.buildFuture();
             };
 }

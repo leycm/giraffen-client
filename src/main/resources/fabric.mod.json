@@ -1,12 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "giraffen-client",
+  "id": "giraffenclient",
   "version": "${version}",
   "name": "GiraffenClient",
   "description": "This is an example description! Tell everyone what your mod is about!",
   "authors": [
-    "LeyCM",
-    "GunSweat"
+    "LeyCM"
   ],
   "contact": {
     "homepage": "https://fabricmc.net/",
@@ -14,7 +13,7 @@
   },
   "license": "CC0-1.0",
   "icon": "assets/giraffenclient/icon.png",
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
     "main": [
       "org.leycm.giraffen.GiraffenClient"

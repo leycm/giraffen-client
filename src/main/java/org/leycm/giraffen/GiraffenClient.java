@@ -3,16 +3,19 @@ package org.leycm.giraffen;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import org.leycm.giraffen.commands.ModuleCommand;
 import org.leycm.giraffen.module.Modules;
 import org.leycm.giraffen.module.modules.cosmetics.CapeLoaderModule;
+import org.leycm.giraffen.ui.ScreenHandler;
 import org.leycm.storage.StorageRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GiraffenClient implements ModInitializer {
 	public static final String MOD_ID = "giraffenclient";
+	private static boolean screenShown = false;
 
 	// This logger is used to write text to the console and the log file.
 	// It is considered best practice to use your mod id as the logger's name.
@@ -23,8 +26,10 @@ public class GiraffenClient implements ModInitializer {
 	public void onInitialize() {
 		StorageRegistry.setup("config/" + MOD_ID, java.util.logging.Logger.getLogger(LOGGER.getName()));
 
+
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
 			Modules.startClient();
+			ScreenHandler.startClient();
 			CapeLoaderModule.cashExternalCapeTextures();
 			ModuleCommand.register();
 		});
@@ -35,6 +40,10 @@ public class GiraffenClient implements ModInitializer {
 
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			Modules.saveClient();
+		});
+
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			ScreenHandler.run();
 		});
 
 	}

@@ -2,7 +2,7 @@ package org.leycm.giraffen.module;
 
 import org.jetbrains.annotations.NotNull;
 import org.leycm.giraffen.GiraffenClient;
-import org.leycm.giraffen.module.common.Module;
+import org.leycm.giraffen.module.common.BaseModule;
 import org.leycm.giraffen.module.modules.cosmetics.CapeLoaderModule;
 import org.leycm.giraffen.module.modules.cosmetics.SkinBlinkerModule;
 import org.leycm.giraffen.module.modules.crasher.BundleCrashModule;
@@ -16,14 +16,14 @@ import org.leycm.storage.impl.JavaStorage;
 import java.util.*;
 
 public class Modules {
-    public static final Map<String, Module> instances = new HashMap<>();
-    private static final Set<Module> running = new HashSet<>();
+    public static final Map<String, BaseModule> instances = new HashMap<>();
+    private static final Set<BaseModule> running = new HashSet<>();
     private static final StorageBase config = StorageBase.of("modules/data", StorageBase.Type.JSON, JavaStorage.class);
 
-    public static Module getModule(String id) {
+    public static BaseModule getModule(String id) {
         return instances.get(id);
     }
-    public static Module addModule(Module module) {return instances.put(module.getId(), module);}
+    public static BaseModule addModule(BaseModule module) {return instances.put(module.getId(), module);}
 
     public static void startClient() {
         new EntityEspModule();
@@ -53,38 +53,38 @@ public class Modules {
     }
 
     public static void onModuleEnabled(String id) {
-        Module module = instances.get(id);
+        BaseModule module = instances.get(id);
         if(module != null) running.add(module);
     }
 
     public static void onModuleDisabled(String id) {
-        Module module = instances.get(id);
+        BaseModule module = instances.get(id);
         if(module != null) running.remove(module);
     }
 
     public static void enableModule(String id) {
-        Module module = instances.get(id);
+        BaseModule module = instances.get(id);
         if(module != null) module.enable();
     }
 
     public static void disableModule(String id) {
-        Module module = instances.get(id);
+        BaseModule module = instances.get(id);
         if(module != null) module.disable();
     }
 
     public static void toggleModule(String id) {
-        Module module = instances.get(id);
+        BaseModule module = instances.get(id);
         if(module != null) module.toggle();
     }
 
-    public static Set<Module> getRunningModules() {return running;}
+    public static Set<BaseModule> getRunningModules() {return running;}
     public static @NotNull Set<String> getRunningModuleIds() {
         Set<String> result = new HashSet<>();
         running.forEach(module -> result.add(module.getId()));
         return result;
     }
 
-    public static Map<String, Module> getModules() {return instances;}
+    public static Map<String, BaseModule> getModules() {return instances;}
     public static @NotNull Set<String> getModuleIds() {
         Set<String> result = new HashSet<>();
         instances.forEach((id, module) -> result.add(id));

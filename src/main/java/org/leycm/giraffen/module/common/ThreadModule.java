@@ -1,6 +1,6 @@
 package org.leycm.giraffen.module.common;
 
-public abstract class ThreadModule extends Module {
+public abstract class ThreadModule extends BaseModule {
 
     private Thread moduleThread;
     private int interval;

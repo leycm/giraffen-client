@@ -3,7 +3,7 @@ package org.leycm.giraffen.module.modules.cosmetics;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerModelPart;
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.common.Module;
+import org.leycm.giraffen.module.common.BaseModule;
 import org.leycm.giraffen.module.common.ThreadModule;
 import org.leycm.giraffen.settings.Setting;
 import org.leycm.giraffen.settings.fields.BooleanField;
@@ -39,7 +39,7 @@ public class SkinBlinkerModule extends ThreadModule {
                 .description("Controls how fast parts blink in blinking/wave modes")
                 .condition(s -> {
                     String blinkerType = getData("blinker.type", String.class, "blinking");
-                    return blinkerType.equalsIgnoreCase("blinking") || blinkerType.equalsIgnoreCase("wave");
+                    return blinkerType.equalsIgnoreCase("blinking") || blinkerType.equalsIgnoreCase("custom");
                 })
         );
 
@@ -155,7 +155,7 @@ public class SkinBlinkerModule extends ThreadModule {
         settings.clear();
     }
 
-    public static Module getInstance() {
+    public static BaseModule getInstance() {
         return Modules.getModule("skin-blinker");
     }
 }

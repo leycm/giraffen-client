@@ -6,7 +6,7 @@ import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.WaterAnimalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.common.Module;
+import org.leycm.giraffen.module.common.BaseModule;
 import org.leycm.giraffen.settings.Setting;
 import org.leycm.giraffen.settings.fields.BooleanField;
 import org.leycm.giraffen.settings.fields.ColorField;
@@ -14,7 +14,7 @@ import org.leycm.giraffen.settings.fields.DropDownField;
 
 import java.util.Map;
 
-public class EntityEspModule extends Module {
+public class EntityEspModule extends BaseModule {
 
     public EntityEspModule() {
         super("Entity Esp", "esp", "entity-esp");

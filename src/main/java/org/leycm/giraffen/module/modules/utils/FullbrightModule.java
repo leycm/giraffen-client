@@ -1,11 +1,11 @@
 package org.leycm.giraffen.module.modules.utils;
 
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.common.Module;
+import org.leycm.giraffen.module.common.BaseModule;
 import org.leycm.giraffen.settings.Setting;
 import org.leycm.giraffen.settings.fields.BooleanField;
 
-public class FullbrightModule extends Module {
+public class FullbrightModule extends BaseModule {
 
     public FullbrightModule() {
         super("Fullbright", "utils", "fullbright");

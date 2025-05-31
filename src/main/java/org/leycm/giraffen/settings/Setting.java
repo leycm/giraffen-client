@@ -1,7 +1,6 @@
 package org.leycm.giraffen.settings;
 
 import org.jetbrains.annotations.NotNull;
-import org.leycm.giraffen.GiraffenClient;
 import org.leycm.storage.StorageBase;
 
 import java.util.ArrayList;
@@ -70,7 +69,7 @@ public class Setting {
 
     public void assign(int index, String value) {
         fields.get(index).assignStr(value);
-        if(storage != null) fields.get(index).set(storage); GiraffenClient.LOGGER.info("set to storage");
+        if(storage != null) fields.get(index).set(storage);
     }
 
     public boolean isValidInput(int index, String value) {

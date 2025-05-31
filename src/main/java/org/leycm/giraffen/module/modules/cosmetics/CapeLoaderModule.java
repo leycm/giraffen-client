@@ -6,7 +6,7 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
 import org.leycm.giraffen.GiraffenClient;
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.common.Module;
+import org.leycm.giraffen.module.common.BaseModule;
 import org.leycm.giraffen.settings.Setting;
 import org.leycm.giraffen.settings.fields.DropDownField;
 
@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class CapeLoaderModule extends Module {
+public class CapeLoaderModule extends BaseModule {
 
     private static final Map<String, String> capes = new HashMap<>();
     private static final Map<String, String> groups = new HashMap<>();

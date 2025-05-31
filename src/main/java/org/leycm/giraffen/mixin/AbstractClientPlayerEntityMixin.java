@@ -6,7 +6,6 @@ import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.util.SkinTextures;
 import net.minecraft.util.Identifier;
 import org.leycm.giraffen.module.modules.cosmetics.CapeLoaderModule;
-import org.leycm.giraffen.module.modules.utils.SkinChangerModule;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,10 +36,6 @@ public abstract class AbstractClientPlayerEntityMixin {
         if (isLocalPlayer) {
             SkinTextures original = cir.getReturnValue();
 
-            /*Identifier customSkin = SkinChangerModule.getInstance().isRunning() ?
-                    SkinChangerModule.getCustomSkinTexture() :
-                    original.texture();*/
-
             Identifier customCape = CapeLoaderModule.getInstance().isRunning() ?
                     CapeLoaderModule.getInstance().getCape() :
                     original.capeTexture();
@@ -48,8 +43,8 @@ public abstract class AbstractClientPlayerEntityMixin {
             SkinTextures modified = new SkinTextures(
                     original.texture(),
                     original.textureUrl(),
-                    CapeLoaderModule.getInstance().isRunning() ? CapeLoaderModule.getInstance().getCape() : original.capeTexture(),
-                    original.elytraTexture(),
+                    customCape,
+                    customCape,
                     original.model(),
                     original.secure()
             );
