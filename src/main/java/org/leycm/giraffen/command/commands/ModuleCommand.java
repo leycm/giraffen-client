@@ -1,4 +1,4 @@
-package org.leycm.giraffen.commands;
+package org.leycm.giraffen.command.commands;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;

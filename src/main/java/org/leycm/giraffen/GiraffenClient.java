@@ -5,7 +5,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import org.leycm.giraffen.commands.ModuleCommand;
+import org.leycm.giraffen.command.commands.ModuleCommand;
 import org.leycm.giraffen.module.Modules;
 import org.leycm.giraffen.module.modules.cosmetics.CapeLoaderModule;
 import org.leycm.giraffen.ui.ScreenHandler;
