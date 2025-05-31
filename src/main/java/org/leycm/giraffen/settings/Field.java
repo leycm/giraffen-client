@@ -34,8 +34,9 @@ public abstract class Field<T> {
     public String parseToStr(@NotNull T value) {return value.toString();}
 
     public abstract T parseFromStr(String s);
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public abstract boolean isValidInput(String s);
     public abstract String[] toTabCompleter(String s);
+//    public abstract
+
 
 }

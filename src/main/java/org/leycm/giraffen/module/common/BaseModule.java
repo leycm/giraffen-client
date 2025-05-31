@@ -99,7 +99,7 @@ public abstract class BaseModule {
 
     private ArgumentBuilder<FabricClientCommandSource, ?> buildArgumentForField(int fieldIndex, int maxFields) {
         ArgumentBuilder<FabricClientCommandSource, ?> currentArg =
-                argument("value", StringArgumentType.string()) // TODO :
+                argument("field" + fieldIndex, StringArgumentType.string()) // TODO : add ArgumentType for field
                         .suggests((ctx, builder) -> createFieldSuggestions(ctx, builder, fieldIndex))
                         .executes(ctx -> executeCommand(ctx, fieldIndex));
 
