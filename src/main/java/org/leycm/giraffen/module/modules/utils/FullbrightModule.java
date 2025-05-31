@@ -2,12 +2,19 @@ package org.leycm.giraffen.module.modules.utils;
 
 import org.leycm.giraffen.module.Modules;
 import org.leycm.giraffen.module.common.Module;
+import org.leycm.giraffen.settings.Setting;
+import org.leycm.giraffen.settings.fields.BooleanField;
 
 public class FullbrightModule extends Module {
 
     public FullbrightModule() {
         super("Fullbright", "utils", "fullbright");
-        setDefaultSetting("remove.darkness.factor", true);
+        setDefaultData("remove.darkness.factor", true);
+
+        setSetting(0, Setting.of("remove-darkness", config)
+                .field(new BooleanField("remove.darkness.factor", true))
+                .prefix("Remove Warden Darkness")
+        );
     }
 
     @Override
@@ -18,8 +25,8 @@ public class FullbrightModule extends Module {
     protected void onDisable() {
     }
 
-    public static Module getInstance() {
-        return Modules.getModule("fullbright");
+    public static FullbrightModule getInstance() {
+        return (FullbrightModule) Modules.getModule("fullbright");
     }
 
 }

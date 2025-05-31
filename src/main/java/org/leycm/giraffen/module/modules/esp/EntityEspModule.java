@@ -7,29 +7,58 @@ import net.minecraft.entity.passive.WaterAnimalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import org.leycm.giraffen.module.Modules;
 import org.leycm.giraffen.module.common.Module;
+import org.leycm.giraffen.settings.Setting;
+import org.leycm.giraffen.settings.fields.BooleanField;
+import org.leycm.giraffen.settings.fields.ColorField;
+import org.leycm.giraffen.settings.fields.DropDownField;
+
+import java.util.Map;
 
 public class EntityEspModule extends Module {
 
     public EntityEspModule() {
         super("Entity Esp", "esp", "entity-esp");
 
-        setDefaultSetting("esp.type", 0);
+        setSetting(0, Setting.of("esp-type", config)
+                .field(new DropDownField("esp.type", "glowing", Map.of("glowing", "Vanilla Glowing")))
+        );
 
-        // Farb-Einstellungen
-        setDefaultSetting("esp.groups.player.color", 0xFF0000);
-        setDefaultSetting("esp.groups.water.color", 0xFFFFFF);
-        setDefaultSetting("esp.groups.monster.color", 0xFFFFFF);
-        setDefaultSetting("esp.groups.passive.color", 0xFFFFFF);
-        setDefaultSetting("esp.groups.animal.color", 0xFFFFFF);
-        setDefaultSetting("esp.groups.default.color", 0xFFFFFF);
+        setSetting(1, Setting.of("display-player", config)
+                .field(new BooleanField("esp.groups.player.show", true))
+                .field(new ColorField("esp.groups.player.color", "#FF0000"))
+                .prefix("Player")
+        );
 
-        // Sichtbarkeits-Einstellungen
-        setDefaultSetting("esp.groups.player.show", true);
-        setDefaultSetting("esp.groups.monster.show", true);
-        setDefaultSetting("esp.groups.water.show", false);
-        setDefaultSetting("esp.groups.passive.show", false);
-        setDefaultSetting("esp.groups.animal.show", false);
-        setDefaultSetting("esp.groups.default.show", false);
+        setSetting(2, Setting.of("display-water", config)
+                .field(new BooleanField("esp.groups.water.show", false))
+                .field(new ColorField("esp.groups.water.color", "#FFFFFF"))
+                .prefix("Water")
+        );
+
+        setSetting(3, Setting.of("display-monster", config)
+                .field(new BooleanField("esp.groups.monster.show", true))
+                .field(new ColorField("esp.groups.monster.color", "#FFFFFF"))
+                .prefix("Monster")
+        );
+
+        setSetting(4, Setting.of("display-passive", config)
+                .field(new BooleanField("esp.groups.passive.show", false))
+                .field(new ColorField("esp.groups.passive.color", "#FFFFFF"))
+                .prefix("Passive")
+        );
+
+        setSetting(5, Setting.of("display-animal", config)
+                .field(new BooleanField("esp.groups.animal.show", false))
+                .field(new ColorField("esp.groups.animal.color", "#FFFFFF"))
+                .prefix("Animal")
+        );
+
+        setSetting(6, Setting.of("display-default", config)
+                .field(new BooleanField("esp.groups.default.show", false))
+                .field(new ColorField("esp.groups.default.color", "#FFFFFF"))
+                .prefix("Default")
+        );
+
     }
 
     @Override
@@ -43,27 +72,34 @@ public class EntityEspModule extends Module {
     }
 
     public boolean shouldGlow(Entity entity) {
-        if (getSetting("esp.type", Integer.class, 0) != 0 || !isRunning()) return false;
+        if (!getData("esp.type", String.class, "glowing").equals("glowing") || !isRunning()) return false;
 
         return switch (entity) {
-            case PlayerEntity playerEntity -> getSetting("esp.groups.player.show", Boolean.class, true);
-            case Monster monster -> getSetting("esp.groups.monster.show", Boolean.class, true);
-            case WaterAnimalEntity waterAnimalEntity -> getSetting("esp.groups.water.show", Boolean.class, false);
-            case PassiveEntity passiveEntity -> getSetting("esp.groups.passive.show", Boolean.class, false);
-            case null, default -> getSetting("esp.groups.default.show", Boolean.class, false);
+            case PlayerEntity playerEntity -> getData("esp.groups.player.show", Boolean.class, true);
+            case Monster monster -> getData("esp.groups.monster.show", Boolean.class, true);
+            case WaterAnimalEntity waterAnimalEntity -> getData("esp.groups.water.show", Boolean.class, false);
+            case PassiveEntity passiveEntity -> getData("esp.groups.passive.show", Boolean.class, false);
+            case null, default -> getData("esp.groups.default.show", Boolean.class, false);
         };
     }
 
     public int getColor(Entity entity) {
-        if (getSetting("esp.type", Integer.class, 0) != 0 || !isRunning()) return 0xFFFFFF;
+        if (!getData("esp.type", String.class, "glowing").equals("glowing") || !isRunning())
+            return 0xFFFFFF;
 
-        return switch (entity) {
-            case PlayerEntity playerEntity -> getSetting("esp.groups.player.color", Integer.class, 0xFF0000);
-            case Monster monster -> getSetting("esp.groups.monster.color", Integer.class, 0xFFFFFF);
-            case WaterAnimalEntity waterAnimalEntity -> getSetting("esp.groups.water.color", Integer.class, 0xFFFFFF);
-            case PassiveEntity passiveEntity -> getSetting("esp.groups.passive.color", Integer.class, 0xFFFFFF);
-            case null, default -> getSetting("esp.groups.default.color", Integer.class, 0xFFFFFF);
+        String colorHex = switch (entity) {
+            case PlayerEntity playerEntity -> getData("esp.groups.player.color", String.class, "#FF0000");
+            case Monster monster -> getData("esp.groups.monster.color", String.class, "#FFFFFF");
+            case WaterAnimalEntity waterAnimalEntity -> getData("esp.groups.water.color", String.class, "#FFFFFF");
+            case PassiveEntity passiveEntity -> getData("esp.groups.passive.color", String.class, "#FFFFFF");
+            case null, default -> getData("esp.groups.default.color", String.class, "#FFFFFF");
         };
+
+        try {
+            return (int) Long.parseLong(colorHex.replace("#", ""), 16);
+        } catch (NumberFormatException e) {
+            return 0xFFFFFF;
+        }
     }
 
     public static EntityEspModule getInstance() {

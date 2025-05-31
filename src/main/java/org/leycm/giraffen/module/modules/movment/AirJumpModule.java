@@ -26,7 +26,7 @@ public class AirJumpModule extends Module {
         if(!isRunning()) return;
 
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        setDefaultSetting("", true);
+        setDefaultData("", true);
     }
 
     public static Module getInstance() {

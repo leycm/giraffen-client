@@ -1,4 +1,4 @@
-package org.leycm.giraffen.settings.impl;
+package org.leycm.giraffen.settings.fields;
 
 import org.jetbrains.annotations.NotNull;
 import org.leycm.giraffen.settings.Field;
@@ -58,13 +58,19 @@ public class StringListField extends Field<List<String>> {
     }
 
     @Override
-    public String[] toTabCompleter() {
+    public String[] toTabCompleter(String arg) {
         List<String> completions = new ArrayList<>();
-        completions.add("clear");
-        getValue().forEach(i -> completions.add("-" + i));
-        tabOptions.forEach(option -> {
-            if (!getValue().contains(option)) completions.add(option);
+        if ("clear".startsWith(arg)) completions.add("clear");
+
+        getValue().forEach(i -> {
+            String option = "-" + i;
+            if (option.startsWith(arg)) completions.add(option);
         });
+
+        tabOptions.forEach(option -> {
+            if (!getValue().contains(option) && option.startsWith(arg)) completions.add(option);
+        });
+
         return completions.toArray(new String[0]);
     }
 

@@ -1,17 +1,17 @@
 {
-	"required": true,
-	"package": "org.leycm.giraffen.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"ExampleMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"client": [
-		"AbstractClientPlayerEntityMixin",
-		"ClientPlayerEntityMixin",
-		"EntityMixin",
-		"LightmapTextureManagerMixin"
-	]
+  "required": true,
+  "package": "org.leycm.giraffen.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ExampleMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "AbstractClientPlayerEntityMixin",
+    "ClientPlayerEntityMixin",
+    "EntityMixin",
+    "LightmapTextureManagerMixin"
+    ]
 }

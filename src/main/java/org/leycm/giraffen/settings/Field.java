@@ -11,6 +11,7 @@ public abstract class Field<T> {
     public Field(String key, T defaultValue) {
         this.key = key;
         this.defaultValue = defaultValue;
+        this.value = defaultValue;
     }
 
     public void assign(T value) {this.value = value;}
@@ -20,10 +21,13 @@ public abstract class Field<T> {
     public String getKey() {return key;}
 
     public void load(@NotNull StorageBase storage) {
-        storage.get(key, value.getClass());
+        //noinspection unchecked
+        T storageValue = (T) storage.get(key, value.getClass());
+        value = storageValue != null ? storageValue : defaultValue;
     }
 
     public void set(@NotNull StorageBase storage) {
+        T value = this.value == null ?  defaultValue : this.value;
         storage.set(key, value);
     }
 
@@ -32,6 +36,6 @@ public abstract class Field<T> {
     public abstract T parseFromStr(String s);
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public abstract boolean isValidInput(String s);
-    public abstract String[] toTabCompleter();
+    public abstract String[] toTabCompleter(String s);
 
 }

@@ -1,5 +1,6 @@
-package org.leycm.giraffen.settings.impl;
+package org.leycm.giraffen.settings.fields;
 
+import org.leycm.giraffen.GiraffenClient;
 import org.leycm.giraffen.settings.Field;
 
 public class IntegerField extends Field<Integer> {
@@ -15,14 +16,20 @@ public class IntegerField extends Field<Integer> {
 
     @Override
     public Integer parseFromStr(String s) {
-        if(!isValidInput(s)) return getDefaultValue();
-        return Integer.parseInt(s);
+        if(!isValidInput(s)) {
+            GiraffenClient.LOGGER.warn("Invalid input, using default: " + getDefaultValue());
+            return getDefaultValue();
+        }
+
+        return s == null || s.trim().isEmpty() ? getDefaultValue() : Integer.parseInt(s.trim());
     }
 
     @Override
     public boolean isValidInput(String s) {
+        if (s == null || s.trim().isEmpty()) {return true;}
+
         try {
-            int number = Integer.parseInt(s);
+            int number = Integer.parseInt(s.trim());
             return number >= min && number <= max;
         } catch (NumberFormatException e) {
             return false;
@@ -30,7 +37,8 @@ public class IntegerField extends Field<Integer> {
     }
 
     @Override
-    public String[] toTabCompleter() {
+    public String[] toTabCompleter(String arg) {
+        if(!isValidInput(arg)) return new String[]{"<not-valid>"};
         return new String[]{"<"+min+"-"+max+">"};
     }
 

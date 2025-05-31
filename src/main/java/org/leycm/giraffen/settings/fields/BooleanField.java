@@ -1,7 +1,9 @@
-package org.leycm.giraffen.settings.impl;
+package org.leycm.giraffen.settings.fields;
 
+import org.jetbrains.annotations.NotNull;
 import org.leycm.giraffen.settings.Field;
 
+import java.util.List;
 import java.util.Set;
 
 public class BooleanField extends Field<Boolean> {
@@ -35,7 +37,25 @@ public class BooleanField extends Field<Boolean> {
     }
 
     @Override
-    public String[] toTabCompleter() {
+    public String[] toTabCompleter(@NotNull String arg) {
+        if (arg.isEmpty()) return new String[]{"true", "false"};
+
+        String lowerArg = arg.toLowerCase();
+
+        List<String> trueMatches = TRUE_VALUES.stream()
+                .filter(v -> v.startsWith(lowerArg))
+                .sorted()
+                .toList();
+
+        List<String> falseMatches = FALSE_VALUES.stream()
+                .filter(v -> v.startsWith(lowerArg))
+                .sorted()
+                .toList();
+
+        if (!trueMatches.isEmpty()) return trueMatches.toArray(new String[0]);
+
+        if (!falseMatches.isEmpty()) return falseMatches.toArray(new String[0]);
+
         return new String[]{"true", "false"};
     }
 

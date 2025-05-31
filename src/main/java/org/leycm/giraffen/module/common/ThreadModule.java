@@ -15,7 +15,6 @@ public abstract class ThreadModule extends Module {
         if (moduleThread == null) {
             moduleThread = new Thread(() -> {
                 while (running) {
-                    onThreadCall();
                     try {
                         //noinspection BusyWait
                         Thread.sleep(50);
@@ -23,6 +22,7 @@ public abstract class ThreadModule extends Module {
                         Thread.currentThread().interrupt();
                         disable();
                     }
+                    onThreadCall();
                 }
             });
             moduleThread.start();

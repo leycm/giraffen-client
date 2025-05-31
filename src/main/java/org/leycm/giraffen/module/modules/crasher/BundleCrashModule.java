@@ -11,7 +11,7 @@ import net.minecraft.util.math.Direction;
 import org.leycm.giraffen.module.common.CrasherModule;
 
 public class BundleCrashModule extends CrasherModule {
-    protected BundleCrashModule() {
+    public BundleCrashModule() {
         super("Bundle Crash", "crasher", "bundle-crash");
     }
 

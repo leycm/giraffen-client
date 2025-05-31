@@ -3,11 +3,10 @@ package org.leycm.giraffen;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import org.leycm.giraffen.commands.ModuleCommand;
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.common.Module;
 import org.leycm.giraffen.module.modules.cosmetics.CapeLoaderModule;
-import org.leycm.lang.TranslationHandler;
 import org.leycm.storage.StorageRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,12 @@ public class GiraffenClient implements ModInitializer {
 		});
 
 		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
-			Modules.stopClient();
+			Modules.saveClient();
 		});
+
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			Modules.saveClient();
+		});
+
 	}
 }

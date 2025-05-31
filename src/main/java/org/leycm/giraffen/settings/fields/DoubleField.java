@@ -1,5 +1,6 @@
-package org.leycm.giraffen.settings.impl;
+package org.leycm.giraffen.settings.fields;
 
+import org.jetbrains.annotations.NotNull;
 import org.leycm.giraffen.settings.Field;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -32,7 +33,7 @@ public class DoubleField extends Field<Double> {
     }
 
     @Override
-    public String parseToStr(Double value) {
+    public String parseToStr(@NotNull Double value) {
         return decimalFormat.format(value);
     }
 
@@ -53,7 +54,7 @@ public class DoubleField extends Field<Double> {
     }
 
     @Override
-    public String[] toTabCompleter() {
+    public String[] toTabCompleter(String arg) {
         return new String[]{"<" + min + "-" + max + " (" + decimalPlaces + " decimal places)>"};
     }
 }

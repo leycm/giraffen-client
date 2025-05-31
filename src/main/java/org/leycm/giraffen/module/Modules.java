@@ -5,8 +5,10 @@ import org.leycm.giraffen.GiraffenClient;
 import org.leycm.giraffen.module.common.Module;
 import org.leycm.giraffen.module.modules.cosmetics.CapeLoaderModule;
 import org.leycm.giraffen.module.modules.cosmetics.SkinBlinkerModule;
+import org.leycm.giraffen.module.modules.crasher.BundleCrashModule;
 import org.leycm.giraffen.module.modules.esp.EntityEspModule;
 import org.leycm.giraffen.module.modules.movment.AirJumpModule;
+import org.leycm.giraffen.module.modules.utils.SkinChangerModule;
 import org.leycm.giraffen.module.modules.utils.FullbrightModule;
 import org.leycm.storage.StorageBase;
 import org.leycm.storage.impl.JavaStorage;
@@ -16,7 +18,7 @@ import java.util.*;
 public class Modules {
     public static final Map<String, Module> instances = new HashMap<>();
     private static final Set<Module> running = new HashSet<>();
-    private static StorageBase config = StorageBase.of("modules/data", StorageBase.Type.JSON, JavaStorage.class);
+    private static final StorageBase config = StorageBase.of("modules/data", StorageBase.Type.JSON, JavaStorage.class);
 
     public static Module getModule(String id) {
         return instances.get(id);
@@ -29,6 +31,8 @@ public class Modules {
         new FullbrightModule();
         new CapeLoaderModule();
         new AirJumpModule();
+        new BundleCrashModule();
+        new SkinChangerModule();
 
         @SuppressWarnings("unchecked")
         List<String> lastTimeActive = (List<String>) config.get("modules.active", List.class, new ArrayList<>());
@@ -40,7 +44,7 @@ public class Modules {
 
     }
 
-    public static void stopClient() {
+    public static void saveClient() {
         instances.forEach((moduleid, module) -> {
             module.saveSettings();
         });
