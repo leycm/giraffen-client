@@ -17,10 +17,8 @@ import org.slf4j.LoggerFactory;
 
 public class Client implements ModInitializer {
 	public static final String MOD_ID = "giraffenclient";
-	private static boolean screenShown = false;
-
 	public static MinecraftClient MC;
-	public static org.leycm.giraffen.commands.CommandHandler commandHandler;
+	private static boolean screenShown = false;
 
 	// This logger is used to write text to the console and the log file.
 	// It is considered best practice to use your mod id as the logger's name.
@@ -29,11 +27,11 @@ public class Client implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		MC = MinecraftClient.getInstance();
-		commandHandler = new CommandHandler();
 		StorageRegistry.setup("config/" + MOD_ID, java.util.logging.Logger.getLogger(LOGGER.getName()));
 
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
+			MC = MinecraftClient.getInstance();
+
 			Modules.startClient();
 			ScreenHandler.startClient();
 			CapeLoaderModule.cashExternalCapeTextures();
