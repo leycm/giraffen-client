@@ -1,13 +1,11 @@
 package org.leycm.giraffen.command;
 
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.minecraft.client.network.ClientCommandSource;
-import net.minecraft.command.CommandRegistryAccess;
 
-public record GiraffenCommand (
+public record Command(
         String name,
         String desc,
         LiteralArgumentBuilder<ClientCommandSource> command

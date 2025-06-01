@@ -4,7 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
-import org.leycm.giraffen.GiraffenClient;
+import org.leycm.giraffen.Client;
 import org.leycm.giraffen.module.Modules;
 import org.leycm.giraffen.module.common.BaseModule;
 import org.leycm.giraffen.settings.Setting;
@@ -59,11 +59,11 @@ public class CapeLoaderModule extends BaseModule {
 
             if (capeType.equalsIgnoreCase("default")) {
                 String path = "cape/" + capeType + "/" + capeId + ".png";
-                cape = Identifier.of(GiraffenClient.MOD_ID, path);
+                cape = Identifier.of(Client.MOD_ID, path);
 
             } else {
                 String path = "cape/dynamic/" + capeId + ".png";
-                cape = Identifier.of(GiraffenClient.MOD_ID, path);
+                cape = Identifier.of(Client.MOD_ID, path);
             }
         }
 
@@ -71,7 +71,7 @@ public class CapeLoaderModule extends BaseModule {
     }
 
     public static void cashExternalCapeTextures() {
-        Path path = Paths.get("config", GiraffenClient.MOD_ID, "cape");
+        Path path = Paths.get("config", Client.MOD_ID, "cape");
 
         try (Stream<Path> paths = Files.walk(path, 1)) {
             paths.filter(Files::isDirectory)
@@ -87,8 +87,8 @@ public class CapeLoaderModule extends BaseModule {
                                         String id = fileName.substring(0, fileName.length() - 4);
 
                                         String identifier = "cape/dynamic/" + id + ".png";
-                                        loadExternalCapeTexture(Identifier.of(GiraffenClient.MOD_ID, identifier), capePath.toFile());
-                                        GiraffenClient.LOGGER.info("Load cape [ID=" + id + ", Typ=" + type + "] from \"config/giraffen-client/cape/" + type + "/" + fileName + "\"");
+                                        loadExternalCapeTexture(Identifier.of(Client.MOD_ID, identifier), capePath.toFile());
+                                        Client.LOGGER.info("Load cape [ID=" + id + ", Typ=" + type + "] from \"config/giraffen-client/cape/" + type + "/" + fileName + "\"");
                                         capes.put(id, id);
                                         groups.put(type, type);
                                     });
@@ -112,7 +112,7 @@ public class CapeLoaderModule extends BaseModule {
             }
             MinecraftClient.getInstance().getTextureManager().registerTexture(identifier, new NativeImageBackedTexture(nativeImage));
         } catch (IOException e) {
-            GiraffenClient.LOGGER.error("Failed to load cape texture from file: " + file.getPath(), e);
+            Client.LOGGER.error("Failed to load cape texture from file: " + file.getPath(), e);
         }
     }
 

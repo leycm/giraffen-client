@@ -3,7 +3,6 @@ package org.leycm.giraffen.module.modules.movment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.common.BaseModule;
 
 public class AirJumpModule extends BaseModule {
 
@@ -29,7 +28,7 @@ public class AirJumpModule extends BaseModule {
         setDefaultData("", true);
     }
 
-    public static BaseModule getInstance() {
+    public static AirJumpModule getInstance() {
         return Modules.getModule("air-jump");
     }
 }

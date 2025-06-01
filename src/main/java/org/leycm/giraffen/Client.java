@@ -6,8 +6,8 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
-import org.leycm.giraffen.commands.CommandHandler;
-import org.leycm.giraffen.commands.ModuleCommand;
+import org.leycm.giraffen.command.CommandRegistration;
+import org.leycm.giraffen.command.commands.ModuleCommand;
 import org.leycm.giraffen.module.Modules;
 import org.leycm.giraffen.module.modules.cosmetics.CapeLoaderModule;
 import org.leycm.giraffen.ui.ScreenHandler;
@@ -15,12 +15,12 @@ import org.leycm.storage.StorageRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GiraffenClient implements ModInitializer {
+public class Client implements ModInitializer {
 	public static final String MOD_ID = "giraffenclient";
 	private static boolean screenShown = false;
 
 	public static MinecraftClient MC;
-	public static CommandHandler commandHandler;
+	public static org.leycm.giraffen.commands.CommandHandler commandHandler;
 
 	// This logger is used to write text to the console and the log file.
 	// It is considered best practice to use your mod id as the logger's name.

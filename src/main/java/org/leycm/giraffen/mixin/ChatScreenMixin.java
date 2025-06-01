@@ -1,7 +1,7 @@
 package org.leycm.giraffen.mixin;
 
 import net.minecraft.client.gui.screen.ChatScreen;
-import org.leycm.giraffen.command.GiraffenCommandRegistration;
+import org.leycm.giraffen.command.CommandRegistration;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,8 +12,8 @@ public class ChatScreenMixin {
 
     @Inject(method = "sendMessage", at = @At("HEAD"), cancellable = true)
     private void interceptCommand(String message, boolean addToHistory, CallbackInfo ci) {
-        GiraffenCommandRegistration CommandSystem;
-        if (message.startsWith(GiraffenCommandRegistration.getPrefix())) {
+        CommandRegistration CommandSystem;
+        if (message.startsWith(CommandRegistration.getPrefix())) {
             ci.cancel();
         }
     }

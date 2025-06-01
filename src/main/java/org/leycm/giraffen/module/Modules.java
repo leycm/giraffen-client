@@ -1,7 +1,7 @@
 package org.leycm.giraffen.module;
 
 import org.jetbrains.annotations.NotNull;
-import org.leycm.giraffen.GiraffenClient;
+import org.leycm.giraffen.Client;
 import org.leycm.giraffen.module.common.BaseModule;
 import org.leycm.giraffen.module.modules.cosmetics.CapeLoaderModule;
 import org.leycm.giraffen.module.modules.cosmetics.SkinBlinkerModule;
@@ -36,7 +36,7 @@ public class Modules {
 
         @SuppressWarnings("unchecked")
         List<String> lastTimeActive = (List<String>) config.get("modules.active", List.class, new ArrayList<>());
-        GiraffenClient.LOGGER.info(lastTimeActive.toString());
+        Client.LOGGER.info(lastTimeActive.toString());
         instances.forEach((id, module) -> {
             if(lastTimeActive.contains(id)) module.enable();
             module.saveSettings();

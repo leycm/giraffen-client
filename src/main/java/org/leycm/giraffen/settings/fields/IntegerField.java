@@ -1,6 +1,6 @@
 package org.leycm.giraffen.settings.fields;
 
-import org.leycm.giraffen.GiraffenClient;
+import org.leycm.giraffen.Client;
 import org.leycm.giraffen.settings.Field;
 
 public class IntegerField extends Field<Integer> {
@@ -17,7 +17,7 @@ public class IntegerField extends Field<Integer> {
     @Override
     public Integer parseFromStr(String s) {
         if(!isValidInput(s)) {
-            GiraffenClient.LOGGER.warn("Invalid input, using default: " + getDefaultValue());
+            Client.LOGGER.warn("Invalid input, using default: " + getDefaultValue());
             return getDefaultValue();
         }
 

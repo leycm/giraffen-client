@@ -1,7 +1,6 @@
 package org.leycm.giraffen.settings.fields;
 
 import org.jetbrains.annotations.NotNull;
-import org.leycm.giraffen.GiraffenClient;
 import org.leycm.giraffen.settings.Field;
 
 public class StringField extends Field<String> {
