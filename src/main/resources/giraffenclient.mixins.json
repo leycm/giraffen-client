@@ -10,9 +10,9 @@
   },
   "client": [
     "AbstractClientPlayerEntityMixin",
+    "ChatInputSuggestorMixin",
     "ClientHandlerPlayNetworkMixin",
     "ClientPlayerEntityMixin",
-    "ChatInputSuggestorMixin",
     "EntityMixin",
     "LightmapTextureManagerMixin"
   ]

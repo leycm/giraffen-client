@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 public class ChatUtil {
 
     public enum Type{
-        ERROR, WARNING, INFO, SUCCESS
+        ERROR, WARNING, INFO, IMPORTANT
     }
 
     public static void sendMessage(String message, @NotNull Type type) {
@@ -17,7 +17,7 @@ public class ChatUtil {
             case ERROR -> prefix = "§4[§f⚀§4] §c";
             case WARNING -> prefix = "§6[§f⚀§6] §e";
             case INFO -> prefix = "§8[§f⚀§8] §7";
-            case SUCCESS -> prefix = "§2[§f⚀§2] §7";
+            case IMPORTANT -> prefix = "§8[§f⚀§8] §f";
         }
 
         assert MinecraftClient.getInstance().player != null;

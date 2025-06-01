@@ -6,7 +6,8 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.suggestion.Suggestions;
 import net.minecraft.client.gui.screen.ChatInputSuggestor;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.command.CommandSource;
+import net.minecraft.client.network.ClientCommandSource;
+import org.jetbrains.annotations.NotNull;
 import org.leycm.giraffen.command.CommandRegistration;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,7 +20,8 @@ import java.util.concurrent.CompletableFuture;
 
 @Mixin(ChatInputSuggestor.class)
 public abstract class ChatInputSuggestorMixin {
-    @Shadow private ParseResults<CommandSource> parse;
+
+    @Shadow private ParseResults<ClientCommandSource> parse;
     @Shadow @Final TextFieldWidget textField;
     @Shadow boolean completingSuggestions;
     @Shadow private CompletableFuture<Suggestions> pendingSuggestions;
@@ -32,16 +34,18 @@ public abstract class ChatInputSuggestorMixin {
             at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/StringReader;canRead()Z", remap = false),
             cancellable = true
     )
-    public void onRefresh(CallbackInfo ci, @Local StringReader reader) {
+    public void onRefresh(CallbackInfo ci, @Local @NotNull StringReader reader) {
         String prefix = CommandRegistration.getPrefix();
         int length = prefix.length();
 
         if (reader.canRead(length) && reader.getString().startsWith(prefix, reader.getCursor())) {
             reader.setCursor(reader.getCursor() + length);
 
+            this.parse = CommandRegistration.parse(reader);
+
             int cursor = textField.getCursor();
             if (cursor >= length && (this.window == null || !this.completingSuggestions)) {
-                this.pendingSuggestions = CommandRegistration.suggestions(reader, cursor);
+                this.pendingSuggestions = CommandRegistration.suggestions(parse, cursor);
                 this.pendingSuggestions.thenRun(() -> {
                     if (this.pendingSuggestions.isDone()) {
                         this.showCommandSuggestions();

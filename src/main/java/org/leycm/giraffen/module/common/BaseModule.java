@@ -174,7 +174,7 @@ public abstract class BaseModule {
 
                 ChatUtil.sendMessage(
                         "Setting \"" + settingId + "\" erfolgreich aktualisiert!",
-                        ChatUtil.Type.SUCCESS
+                        ChatUtil.Type.IMPORTANT
                 );
 
                 return Command.SINGLE_SUCCESS;

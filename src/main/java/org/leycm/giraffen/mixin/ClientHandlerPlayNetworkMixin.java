@@ -13,8 +13,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPlayNetworkHandler.class)
 public class ClientHandlerPlayNetworkMixin {
 
+    private static boolean bypass = false;
+
     @Inject(method = "sendChatMessage", at = @At("HEAD"), cancellable = true)
     private void onSendChatMessage(@NotNull String message, CallbackInfo ci) throws CommandSyntaxException {
+        if (bypass) return;
+
         String sendMessage = message.replaceAll("(?<!\\\\)\\\\", "");
 
         Client.LOGGER.info("message: \"" + message + "\"" );
@@ -23,11 +27,20 @@ public class ClientHandlerPlayNetworkMixin {
         if (CommandRegistration.execute(message)) {
             Client.MC.getCommandHistoryManager().add(message);
             ci.cancel();
-        } else {
-            assert Client.MC.player != null;
-            Client.MC.player.networkHandler.sendChatMessage(sendMessage);
-            Client.MC.getCommandHistoryManager().add(message);
+        } else if (!sendMessage.equals(message)) {
+            // Delay sending to avoid recursion
             ci.cancel();
+            Client.MC.getCommandHistoryManager().add(message);
+            Client.MC.execute(() -> {
+                bypass = true;
+                try {
+                    assert Client.MC.player != null;
+                    Client.MC.player.networkHandler.sendChatMessage(sendMessage);
+                } finally {
+                    bypass = false;
+                }
+            });
         }
     }
 }
+
