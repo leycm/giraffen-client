@@ -5,7 +5,9 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import org.leycm.giraffen.command.commands.ModuleCommand;
+import net.minecraft.client.MinecraftClient;
+import org.leycm.giraffen.commands.CommandHandler;
+import org.leycm.giraffen.commands.ModuleCommand;
 import org.leycm.giraffen.module.Modules;
 import org.leycm.giraffen.module.modules.cosmetics.CapeLoaderModule;
 import org.leycm.giraffen.ui.ScreenHandler;
@@ -17,6 +19,9 @@ public class GiraffenClient implements ModInitializer {
 	public static final String MOD_ID = "giraffenclient";
 	private static boolean screenShown = false;
 
+	public static MinecraftClient MC;
+	public static CommandHandler commandHandler;
+
 	// This logger is used to write text to the console and the log file.
 	// It is considered best practice to use your mod id as the logger's name.
 	// That way, it's clear which mod wrote info, warnings, and errors.
@@ -24,8 +29,9 @@ public class GiraffenClient implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		MC = MinecraftClient.getInstance();
+		commandHandler = new CommandHandler();
 		StorageRegistry.setup("config/" + MOD_ID, java.util.logging.Logger.getLogger(LOGGER.getName()));
-
 
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
 			Modules.startClient();

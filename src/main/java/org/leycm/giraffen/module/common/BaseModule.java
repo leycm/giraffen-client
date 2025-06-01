@@ -7,13 +7,13 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
-import net.minecraft.client.network.ClientCommandSource;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.leycm.giraffen.GiraffenClient;
-import org.leycm.giraffen.command.GiraffenCommandRegistration;
 import org.leycm.giraffen.module.Modules;
 import org.leycm.giraffen.settings.Setting;
-import org.leycm.giraffen.utlis.ChatUtil;
 import org.leycm.storage.StorageBase;
 import org.leycm.storage.impl.JavaStorage;
 
@@ -21,9 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static org.leycm.giraffen.command.GiraffenCommand.argument;
-import static org.leycm.giraffen.command.GiraffenCommand.literal;
-
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
 public abstract class BaseModule {
     private final String displayName;
@@ -80,25 +79,27 @@ public abstract class BaseModule {
     protected List<Setting> getSettings() {return settings;}
 
     public void register() {
-        GiraffenCommandRegistration.register(literal(id)
-                .then(literal("settings")
-                        .then(argument("setting", StringArgumentType.word())
-                                .suggests(SETTING_SUGGESTIONS)
-                                .executes(this::showSettingInfo)
-                                .then(buildDynamicArguments())
-                        )
-                )
-        );
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+            dispatcher.register(literal(id)
+                    .then(literal("settings")
+                            .then(argument("setting", StringArgumentType.word())
+                                    .suggests(SETTING_SUGGESTIONS)
+                                    .executes(this::showSettingInfo)
+                                    .then(buildDynamicArguments())
+                            )
+                    )
+            );
+        });
     }
 
-    private ArgumentBuilder<ClientCommandSource, ?> buildDynamicArguments() {
+    private ArgumentBuilder<FabricClientCommandSource, ?> buildDynamicArguments() {
         int maxFields = settings.stream().mapToInt(Setting::size).max().orElse(1);
         return buildArgumentForField(0, maxFields);
     }
 
-    private ArgumentBuilder<ClientCommandSource, ?> buildArgumentForField(int fieldIndex, int maxFields) {
-        ArgumentBuilder<ClientCommandSource, ?> currentArg =
-                argument("field" + fieldIndex, StringArgumentType.string()) // TODO :
+    private ArgumentBuilder<FabricClientCommandSource, ?> buildArgumentForField(int fieldIndex, int maxFields) {
+        ArgumentBuilder<FabricClientCommandSource, ?> currentArg =
+                argument("field" + fieldIndex, StringArgumentType.string()) // TODO : add ArgumentType for field
                         .suggests((ctx, builder) -> createFieldSuggestions(ctx, builder, fieldIndex))
                         .executes(ctx -> executeCommand(ctx, fieldIndex));
 
@@ -110,7 +111,7 @@ public abstract class BaseModule {
     }
 
     private CompletableFuture<Suggestions> createFieldSuggestions(
-            CommandContext<ClientCommandSource> ctx,
+            CommandContext<FabricClientCommandSource> ctx,
             SuggestionsBuilder builder,
             int fieldIndex) {
 
@@ -134,13 +135,13 @@ public abstract class BaseModule {
         return builder.buildFuture();
     }
 
-    private int executeCommand(CommandContext<ClientCommandSource> ctx, int currentFieldIndex) {
+    private int executeCommand(CommandContext<FabricClientCommandSource> ctx, int currentFieldIndex) {
         try {
             String settingId = StringArgumentType.getString(ctx, "setting");
             Setting setting = findSettingById(settingId);
 
             if (setting == null) {
-                ChatUtil.sendMessage("Setting \"" + settingId + "\" nicht gefunden!", ChatUtil.Type.ERROR);
+                ctx.getSource().sendError(Text.literal("Setting \"" + settingId + "\" nicht gefunden!"));
                 return 0;
             }
 
@@ -151,11 +152,10 @@ public abstract class BaseModule {
 
                     if (i < setting.size()) {
                         if (!setting.isValidInput(i, arg)) {
-                            ChatUtil.sendMessage(
+                            ctx.getSource().sendError(Text.literal(
                                     "Ungültiger Wert \"" + arg + "\" für Feld " + i + ". " +
-                                            "Erlaubte Werte: " + String.join(", ", setting.toTabCompleter(i, arg)),
-                                    ChatUtil.Type.ERROR
-                            );
+                                            "Erlaubte Werte: " + String.join(", ", setting.toTabCompleter(i, arg))
+                            ));
                             return 0;
                         }
                         arguments.add(arg);
@@ -172,10 +172,9 @@ public abstract class BaseModule {
                     setting.assign(i, arguments.get(i));
                 }
 
-                ChatUtil.sendMessage(
-                        "Setting \"" + settingId + "\" erfolgreich aktualisiert!",
-                        ChatUtil.Type.SUCCESS
-                );
+                ctx.getSource().sendFeedback(Text.literal(
+                        "Setting \"" + settingId + "\" erfolgreich aktualisiert!"
+                ));
 
                 return Command.SINGLE_SUCCESS;
             } else if (arguments.size() < setting.size()) {
@@ -184,35 +183,32 @@ public abstract class BaseModule {
                     String[] nextOptions = setting.toTabCompleter(nextFieldIndex, "");
                     String optionsText = nextOptions != null ? String.join(", ", nextOptions) : "keine Optionen verfügbar";
 
-                    ChatUtil.sendMessage(
+                    ctx.getSource().sendFeedback(Text.literal(
                             "Nächstes Argument für Feld " + nextFieldIndex + " benötigt. " +
-                                    "Verfügbare Optionen: " + optionsText,
-                            ChatUtil.Type.INFO
-                    );
+                                    "Verfügbare Optionen: " + optionsText
+                    ));
                 } else {
-                    ChatUtil.sendMessage(
-                            "Nicht genug Argumente! Benötigt: " + setting.size() + ", erhalten: " + arguments.size(),
-                            ChatUtil.Type.ERROR
-                    );
+                    ctx.getSource().sendError(Text.literal(
+                            "Nicht genug Argumente! Benötigt: " + setting.size() + ", erhalten: " + arguments.size()
+                    ));
                 }
 
                 return Command.SINGLE_SUCCESS;
             } else {
-                ChatUtil.sendMessage(
-                        "Zu viele Argumente! Setting \"" + settingId + "\" benötigt nur " + setting.size() + " Argumente.",
-                        ChatUtil.Type.ERROR
-                );
+                ctx.getSource().sendError(Text.literal(
+                        "Zu viele Argumente! Setting \"" + settingId + "\" benötigt nur " + setting.size() + " Argumente."
+                ));
                 return 0;
             }
 
         } catch (Exception e) {
-            ChatUtil.sendMessage("Fehler beim Ausführen des Commands: " + e.getMessage(), ChatUtil.Type.ERROR);
+            ctx.getSource().sendError(Text.literal("Fehler beim Ausführen des Commands: " + e.getMessage()));
             GiraffenClient.LOGGER.error("Command execution error", e);
             return 0;
         }
     }
 
-    private int showSettingInfo(CommandContext<ClientCommandSource> ctx) {
+    private int showSettingInfo(CommandContext<FabricClientCommandSource> ctx) {
         String settingId = StringArgumentType.getString(ctx, "setting");
         Setting setting = findSettingById(settingId);
 
@@ -223,9 +219,9 @@ public abstract class BaseModule {
                 String optionsText = options != null ? String.join(", ", options) : "keine Optionen";
                 info.append("  Feld ").append(i).append(": ").append(optionsText).append("\n");
             }
-            ChatUtil.sendMessage(info.toString(), ChatUtil.Type.INFO);
+            ctx.getSource().sendFeedback(Text.literal(info.toString()));
         } else {
-            ChatUtil.sendMessage("Setting \"" + settingId + "\" nicht gefunden!", ChatUtil.Type.ERROR);
+            ctx.getSource().sendError(Text.literal("Setting \"" + settingId + "\" nicht gefunden!"));
         }
 
         return Command.SINGLE_SUCCESS;
@@ -238,7 +234,7 @@ public abstract class BaseModule {
                 .orElse(null);
     }
 
-    private final SuggestionProvider<ClientCommandSource> SETTING_SUGGESTIONS =
+    private final SuggestionProvider<FabricClientCommandSource> SETTING_SUGGESTIONS =
             (ctx, builder) -> {
                 String arg = builder.getRemaining().toLowerCase();
 
