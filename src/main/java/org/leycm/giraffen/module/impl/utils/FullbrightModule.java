@@ -1,7 +1,7 @@
-package org.leycm.giraffen.module.modules.utils;
+package org.leycm.giraffen.module.impl.utils;
 
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.common.BaseModule;
+import org.leycm.giraffen.module.modules.BaseModule;
 import org.leycm.giraffen.settings.Setting;
 import org.leycm.giraffen.settings.fields.BooleanField;
 
@@ -15,6 +15,8 @@ public class FullbrightModule extends BaseModule {
                 .field(new BooleanField("remove.darkness.factor", true))
                 .prefix("Remove Warden Darkness")
         );
+
+        register();
     }
 
     @Override

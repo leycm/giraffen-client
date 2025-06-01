@@ -2,6 +2,7 @@ package org.leycm.giraffen.ui;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import org.leycm.giraffen.uiold.ModuleScreen;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,7 +17,7 @@ public class ScreenHandler {
         new ModuleScreen();
     }
 
-    protected static void register(String id, Screen screen) {
+    public static void register(String id, Screen screen) {
         screens.put(id, screen);
     }
 
@@ -31,5 +32,7 @@ public class ScreenHandler {
         MinecraftClient.getInstance().setScreen(screens.get(id));
         toOpen.remove(id);
     }
+
+
 
 }

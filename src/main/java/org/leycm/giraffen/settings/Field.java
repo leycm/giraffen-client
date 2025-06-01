@@ -1,5 +1,10 @@
 package org.leycm.giraffen.settings;
 
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.leycm.storage.StorageBase;
 
@@ -30,13 +35,22 @@ public abstract class Field<T> {
         T value = this.value == null ?  defaultValue : this.value;
         storage.set(key, value);
     }
-
+    public String parseToStr() {return parseToStr(value);}
     public String parseToStr(@NotNull T value) {return value.toString();}
 
     public abstract T parseFromStr(String s);
     public abstract boolean isValidInput(String s);
+    public abstract String whyIsInvalid(String s);
     public abstract String[] toTabCompleter(String s);
-//    public abstract
 
+    public ArgumentType<String> toArgumentType() {
+        return reader -> {
+            String input = reader.readUnquotedString();
+            if (!isValidInput(input)) {
+                throw new SimpleCommandExceptionType(Text.literal(whyIsInvalid(input))).create();
+            }
+            return input;
+        };
+    }
 
 }

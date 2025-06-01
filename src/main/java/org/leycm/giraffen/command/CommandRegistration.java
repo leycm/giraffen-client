@@ -12,8 +12,10 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 import org.leycm.giraffen.Client;
+import org.leycm.giraffen.utlis.ChatUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -21,11 +23,11 @@ import java.util.concurrent.CompletableFuture;
 public class CommandRegistration {
 
     public static final CommandDispatcher<ClientCommandSource> DISPATCHER = new CommandDispatcher<>();
-    private static final List<Command> commands = new ArrayList<>();
+    private static final List<GiraffenCommand> commands = new ArrayList<>();
     private static ClientCommandSource source;
 
     public static void register(LiteralArgumentBuilder<ClientCommandSource> command) {
-        commands.add(new Command(command.getLiteral(), "No desc for the Command", command));
+        commands.add(new GiraffenCommand(command.getLiteral(), "No desc for the Command", command));
         DISPATCHER.register(command);
     }
 
@@ -38,7 +40,7 @@ public class CommandRegistration {
                             assert MinecraftClient.getInstance().player != null;
                             Client.MC.player.sendMessage(Text.literal("Hey! here is your help (°_°)"), false);
                             commands.stream()
-                                    .sorted(Comparator.comparing(Command::name))
+                                    .sorted(Comparator.comparing(GiraffenCommand::name))
                                     .forEach(cmd -> {
                                         Client.MC.player.sendMessage(Text.literal(" §l§b> §7." + cmd.name() + "§b - §7" + cmd.desc()), false);
                                     });
@@ -52,11 +54,14 @@ public class CommandRegistration {
 
         StringReader command = prepareReader(message);
 
+        String lable = Arrays.stream(command.getString().split(" ")).findFirst().orElse("command");
+
         try {
-            int result = DISPATCHER.execute(command, source);
+            DISPATCHER.execute(command, source);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            ChatUtil.sendMessage(e.getMessage(), ChatUtil.Type.ERROR);
+            Client.LOGGER.info("Fail to execute " + e.getMessage());
             return true;
         }
     }
@@ -93,7 +98,7 @@ public class CommandRegistration {
     }
 
     @Contract(pure = true)
-    public static @NotNull @Unmodifiable List<Command> getCommands() {
+    public static @NotNull @Unmodifiable List<GiraffenCommand> getCommands() {
         return List.copyOf(commands);
     }
 }

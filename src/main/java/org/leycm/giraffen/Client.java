@@ -6,10 +6,9 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
-import org.leycm.giraffen.command.CommandRegistration;
 import org.leycm.giraffen.command.commands.ModuleCommand;
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.modules.cosmetics.CapeLoaderModule;
+import org.leycm.giraffen.module.impl.cosmetics.CapeLoaderModule;
 import org.leycm.giraffen.ui.ScreenHandler;
 import org.leycm.storage.StorageRegistry;
 import org.slf4j.Logger;
@@ -32,7 +31,8 @@ public class Client implements ModInitializer {
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
 			MC = MinecraftClient.getInstance();
 
-			Modules.startClient();
+			Modules.startClient(64);
+
 			ScreenHandler.startClient();
 			CapeLoaderModule.cashExternalCapeTextures();
 			ModuleCommand.register();

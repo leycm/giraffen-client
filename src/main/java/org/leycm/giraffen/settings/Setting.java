@@ -15,6 +15,7 @@ public class Setting {
     private String prefix;
     private String suffix;
     private String description;
+    private Group group;
 
     public static @NotNull Setting of(String id, StorageBase storage){
         return new Setting(id, storage, (setting) -> true);
@@ -47,13 +48,18 @@ public class Setting {
         return this;
     }
 
+    public Setting suffix(String suffix) {
+        this.suffix = suffix;
+        return this;
+    }
+
     public Setting description(String description) {
         this.description = description;
         return this;
     }
 
-    public Setting suffix(String suffix) {
-        this.suffix = suffix;
+    public Setting group(Group group) {
+        this.group = group;
         return this;
     }
 
@@ -83,6 +89,7 @@ public class Setting {
     public String getPrefix() {return prefix;}
     public String getSuffix() {return suffix;}
     public String getDescription() {return description;}
+    public Group getGroup() {return group;}
     public Field<?> getField(int index) {return fields.get(index);}
     public List<Field<?>> getFields() {return fields;}
 

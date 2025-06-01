@@ -54,6 +54,42 @@ public class DoubleField extends Field<Double> {
     }
 
     @Override
+    public String whyIsInvalid(String s) {
+        try {
+            double number = Double.parseDouble(s);
+
+            String[] parts = s.split("\\.");
+            if (parts.length == 2 && parts[1].length() > decimalPlaces) {
+                return String.format(
+                        "Number has too many decimal places (%d found, maximum allowed: %d)",
+                        parts[1].length(), decimalPlaces
+                );
+            }
+
+            if (number < min) {
+                return String.format(
+                        "Number %f is below minimum allowed value (%f)",
+                        number, min
+                );
+            }
+            if (number > max) {
+                return String.format(
+                        "Number %f is above maximum allowed value (%f)",
+                        number, max
+                );
+            }
+
+        } catch (NumberFormatException e) {
+            return String.format(
+                    "'%s' is not a valid number",
+                    s
+            );
+        }
+
+        return "Input is valid";
+    }
+
+    @Override
     public String[] toTabCompleter(String arg) {
         return new String[]{"<" + min + "-" + max + " (" + decimalPlaces + " decimal places)>"};
     }

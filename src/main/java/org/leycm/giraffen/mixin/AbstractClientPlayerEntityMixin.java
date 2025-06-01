@@ -5,7 +5,7 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.util.SkinTextures;
 import net.minecraft.util.Identifier;
-import org.leycm.giraffen.module.modules.cosmetics.CapeLoaderModule;
+import org.leycm.giraffen.module.impl.cosmetics.CapeLoaderModule;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

@@ -1,13 +1,13 @@
-package org.leycm.giraffen.module.modules.movment;
+package org.leycm.giraffen.module.impl.movment;
 
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.common.BaseModule;
+import org.leycm.giraffen.module.modules.BaseModule;
 
 public class AirJumpModule extends BaseModule {
 
     public AirJumpModule() {
         super("Air Jump", "movement", "air-jump");
-
+        register();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package org.leycm.giraffen.module.modules.cosmetics;
+package org.leycm.giraffen.module.impl.cosmetics;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
@@ -6,7 +6,7 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.util.Identifier;
 import org.leycm.giraffen.Client;
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.common.BaseModule;
+import org.leycm.giraffen.module.modules.BaseModule;
 import org.leycm.giraffen.settings.Setting;
 import org.leycm.giraffen.settings.fields.DropDownField;
 
@@ -37,6 +37,8 @@ public class CapeLoaderModule extends BaseModule {
                 .field(new DropDownField("cape.in-use.type", "default", groups))
                 .field(new DropDownField("cape.in-use.id", "none", capes))
         );
+
+        register();
     }
 
     @Override

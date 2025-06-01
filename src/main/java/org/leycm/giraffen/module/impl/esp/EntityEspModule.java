@@ -1,4 +1,4 @@
-package org.leycm.giraffen.module.modules.esp;
+package org.leycm.giraffen.module.impl.esp;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.Monster;
@@ -6,10 +6,11 @@ import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.WaterAnimalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.common.BaseModule;
+import org.leycm.giraffen.module.modules.BaseModule;
+import org.leycm.giraffen.settings.Group;
 import org.leycm.giraffen.settings.Setting;
 import org.leycm.giraffen.settings.fields.BooleanField;
-import org.leycm.giraffen.settings.fields.ColorField;
+import org.leycm.giraffen.settings.fields.RgbColorField;
 import org.leycm.giraffen.settings.fields.DropDownField;
 
 import java.util.Map;
@@ -25,40 +26,47 @@ public class EntityEspModule extends BaseModule {
 
         setSetting(1, Setting.of("display-player", config)
                 .field(new BooleanField("esp.groups.player.show", true))
-                .field(new ColorField("esp.groups.player.color", "#FF0000"))
+                .field(new RgbColorField("esp.groups.player.color", "#FF0000"))
+                .group(new Group("display", "Display"))
                 .prefix("Player")
         );
 
         setSetting(2, Setting.of("display-water", config)
                 .field(new BooleanField("esp.groups.water.show", false))
-                .field(new ColorField("esp.groups.water.color", "#FFFFFF"))
+                .field(new RgbColorField("esp.groups.water.color", "#FFFFFF"))
+                .group(new Group("display", "Display"))
                 .prefix("Water")
         );
 
         setSetting(3, Setting.of("display-monster", config)
                 .field(new BooleanField("esp.groups.monster.show", true))
-                .field(new ColorField("esp.groups.monster.color", "#FFFFFF"))
+                .field(new RgbColorField("esp.groups.monster.color", "#FFFFFF"))
+                .group(new Group("display", "Display"))
                 .prefix("Monster")
         );
 
-        setSetting(4, Setting.of("display-passive", config)
-                .field(new BooleanField("esp.groups.passive.show", false))
-                .field(new ColorField("esp.groups.passive.color", "#FFFFFF"))
-                .prefix("Passive")
-        );
-
-        setSetting(5, Setting.of("display-animal", config)
+        setSetting(4, Setting.of("animal", config)
                 .field(new BooleanField("esp.groups.animal.show", false))
-                .field(new ColorField("esp.groups.animal.color", "#FFFFFF"))
+                .field(new RgbColorField("esp.groups.animal.color", "#FFFFFF"))
+                .group(new Group("display", "Display"))
                 .prefix("Animal")
         );
 
-        setSetting(6, Setting.of("display-default", config)
+        setSetting(5, Setting.of("passive", config)
+                .field(new BooleanField("esp.groups.passive.show", false))
+                .field(new RgbColorField("esp.groups.passive.color", "#FFFFFF"))
+                .group(new Group("display", "Display"))
+                .prefix("Passive")
+        );
+
+        setSetting(6, Setting.of("default", config)
                 .field(new BooleanField("esp.groups.default.show", false))
-                .field(new ColorField("esp.groups.default.color", "#FFFFFF"))
+                .field(new RgbColorField("esp.groups.default.color", "#FFFFFF"))
+                .group(new Group("display", "Display"))
                 .prefix("Default")
         );
 
+        register();
     }
 
     @Override

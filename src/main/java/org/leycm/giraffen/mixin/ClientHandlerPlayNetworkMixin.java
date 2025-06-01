@@ -16,13 +16,10 @@ public class ClientHandlerPlayNetworkMixin {
     private static boolean bypass = false;
 
     @Inject(method = "sendChatMessage", at = @At("HEAD"), cancellable = true)
-    private void onSendChatMessage(@NotNull String message, CallbackInfo ci) throws CommandSyntaxException {
+    private void onSendChatMessage(@NotNull String message, CallbackInfo ci){
         if (bypass) return;
 
         String sendMessage = message.replaceAll("(?<!\\\\)\\\\", "");
-
-        Client.LOGGER.info("message: \"" + message + "\"" );
-        Client.LOGGER.info("replace: \"" + sendMessage + "\"" );
 
         if (CommandRegistration.execute(message)) {
             Client.MC.getCommandHistoryManager().add(message);

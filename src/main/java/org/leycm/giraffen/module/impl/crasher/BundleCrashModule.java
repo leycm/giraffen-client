@@ -1,18 +1,16 @@
-package org.leycm.giraffen.module.modules.crasher;
+package org.leycm.giraffen.module.impl.crasher;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.BundleItemSelectedC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import org.leycm.giraffen.module.common.CrasherModule;
+import org.leycm.giraffen.module.modules.CrasherModule;
 
 public class BundleCrashModule extends CrasherModule {
     public BundleCrashModule() {
         super("Bundle Crash", "crasher", "bundle-crash");
+        register();
     }
 
     @Override

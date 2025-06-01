@@ -1,10 +1,10 @@
-package org.leycm.giraffen.module.modules.cosmetics;
+package org.leycm.giraffen.module.impl.cosmetics;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerModelPart;
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.common.BaseModule;
-import org.leycm.giraffen.module.common.ThreadModule;
+import org.leycm.giraffen.module.modules.BaseModule;
+import org.leycm.giraffen.module.modules.ThreadModule;
 import org.leycm.giraffen.settings.Setting;
 import org.leycm.giraffen.settings.fields.BooleanField;
 import org.leycm.giraffen.settings.fields.DropDownField;
@@ -57,6 +57,8 @@ public class SkinBlinkerModule extends ThreadModule {
             );
 
         }
+
+        register();
     }
 
     @Override

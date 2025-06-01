@@ -5,7 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.minecraft.client.network.ClientCommandSource;
 
-public record Command(
+public record GiraffenCommand(
         String name,
         String desc,
         LiteralArgumentBuilder<ClientCommandSource> command

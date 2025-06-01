@@ -3,21 +3,22 @@ package org.leycm.giraffen.command.commands;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.*;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientCommandSource;
 import net.minecraft.text.Text;
+import org.leycm.giraffen.command.CommandRegistration;
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.common.BaseModule;
+import org.leycm.giraffen.module.modules.BaseModule;
 import org.leycm.giraffen.ui.ScreenHandler;
+
+import static org.leycm.giraffen.command.GiraffenCommand.argument;
+import static org.leycm.giraffen.command.GiraffenCommand.literal;
 
 public class ModuleCommand {
 
     public static void register() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(literal("module").executes(ctx -> {
-                        ScreenHandler.openUi("module-menu-screen");
+            CommandRegistration.register(literal("module").executes(ctx -> {
+                        ScreenHandler.openUi("module-menu-screens");
                         return 1;
                             })
                     .then(argument("module", StringArgumentType.word())
@@ -27,11 +28,10 @@ public class ModuleCommand {
                             .then(literal("reload").executes(ctx -> withModule(ctx, BaseModule::reloadSettings)))
                     )
             );
-        });
     }
 
 
-    private static int withModule(CommandContext<FabricClientCommandSource> ctx, java.util.function.Consumer<BaseModule> action) {
+    private static int withModule(CommandContext<ClientCommandSource> ctx, java.util.function.Consumer<BaseModule> action) {
         String moduleName = StringArgumentType.getString(ctx, "module");
         BaseModule module = Modules.getModule(moduleName);
         if (module == null) {
@@ -43,7 +43,7 @@ public class ModuleCommand {
         return 1;
     }
 
-    private static final SuggestionProvider<FabricClientCommandSource> MODULE_SUGGESTIONS = (ctx, builder) -> {
+    private static final SuggestionProvider<ClientCommandSource> MODULE_SUGGESTIONS = (ctx, builder) -> {
         for (String id : Modules.getModuleIds()) {
             builder.suggest(id);
         }

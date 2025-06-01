@@ -1,5 +1,6 @@
 package org.leycm.giraffen.settings.fields;
 
+import org.leycm.giraffen.Client;
 import org.leycm.giraffen.settings.Field;
 
 import java.util.Map;
@@ -24,6 +25,20 @@ public class DropDownField extends Field<String> {
     @Override
     public boolean isValidInput(String s) {
         return s != null && options.containsKey(s);
+    }
+
+    @Override
+    public String whyIsInvalid(String s) {
+        if (s == null) return "Input cannot be null";
+        if (!options.containsKey(s)) {
+            return String.format(
+                    "'%s' is not a valid option. Available options are: %s",
+                    s,
+                    String.join(", ", options.keySet())
+            );
+        }
+
+        return "Input is valid";
     }
 
     @Override

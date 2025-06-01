@@ -37,6 +37,30 @@ public class BooleanField extends Field<Boolean> {
     }
 
     @Override
+    public String whyIsInvalid(String s) {
+        if (s == null) {
+            return "Input cannot be null";
+        }
+
+        String sc = s.trim().toLowerCase();
+
+        if (sc.isEmpty()) {
+            return "Empty input provided";
+        }
+
+        if (!TRUE_VALUES.contains(sc) && !FALSE_VALUES.contains(sc)) {
+            return String.format(
+                    "'%s' is not a valid boolean value. Accepted values are: %s (true) or %s (false)",
+                    s,
+                    String.join(", ", TRUE_VALUES),
+                    String.join(", ", FALSE_VALUES)
+            );
+        }
+
+        return "Input is valid";
+    }
+
+    @Override
     public String[] toTabCompleter(@NotNull String arg) {
         if (arg.isEmpty()) return new String[]{"true", "false"};
 

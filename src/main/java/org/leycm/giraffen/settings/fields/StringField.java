@@ -45,6 +45,37 @@ public class StringField extends Field<String> {
     }
 
     @Override
+    public String whyIsInvalid(String s) {
+        if (s == null) {
+            return "Input cannot be null";
+        }
+
+        int len = s.length();
+        if (len < minLength) {
+            return String.format(
+                    "Input is too short (length: %d, minimum required: %d)",
+                    len, minLength
+            );
+        }
+
+        if (len > maxLength) {
+            return String.format(
+                    "Input is too long (length: %d, maximum allowed: %d)",
+                    len, maxLength
+            );
+        }
+
+        if (regex != null && !s.matches(regex)) {
+            return String.format(
+                    "Input does not match the required pattern: %s",
+                    regex
+            );
+        }
+
+        return "Input is valid";
+    }
+
+    @Override
     public String[] toTabCompleter(String arg) {
         if(tabCompleter != null) return new String[] {tabCompleter};
         String regexPart = (regex != null) ? ", pattern=" + regex : "";

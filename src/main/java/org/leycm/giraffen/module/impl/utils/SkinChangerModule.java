@@ -1,13 +1,15 @@
-package org.leycm.giraffen.module.modules.utils;
+package org.leycm.giraffen.module.impl.utils;
 
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.common.BaseModule;
+import org.leycm.giraffen.module.modules.BaseModule;
 
 
 public class SkinChangerModule extends BaseModule {
 
     public SkinChangerModule() {
         super("Skin Changer", "utils", "skin-changer");
+
+        register();
     }
 
 

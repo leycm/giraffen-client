@@ -36,9 +36,39 @@ public class IntegerField extends Field<Integer> {
         }
     }
 
+
+    @Override
+    public String whyIsInvalid(String s) {
+        if (s == null || s.trim().isEmpty()) {
+            return "Input is valid (empty or null is allowed)";
+        }
+
+        try {
+            int number = Integer.parseInt(s.trim());
+            if (number < min) {
+                return String.format(
+                        "Number %d is too small (minimum allowed: %d)",
+                        number, min
+                );
+            }
+            if (number > max) {
+                return String.format(
+                        "Number %d is too large (maximum allowed: %d)",
+                        number, max
+                );
+            }
+        } catch (NumberFormatException e) {
+            return String.format(
+                    "'%s' is not a valid integer number",
+                    s.trim()
+            );
+        }
+
+        return "Input is valid";
+    }
+
     @Override
     public String[] toTabCompleter(String arg) {
-        if(!isValidInput(arg)) return new String[]{"<not-valid>"};
         return new String[]{"<"+min+"-"+max+">"};
     }
 

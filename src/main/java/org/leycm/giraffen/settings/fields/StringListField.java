@@ -58,6 +58,27 @@ public class StringListField extends Field<List<String>> {
     }
 
     @Override
+    public String whyIsInvalid(String s) {
+        if (s == null) {
+            return "Input cannot be null";
+        }
+
+        if (maxListSize > 0) {
+            int currentSize = getValue().size();
+            int newItems = s.split(",").length;
+
+            if (currentSize + newItems > maxListSize) {
+                return String.format(
+                        "Adding %d items would exceed the maximum list size of %d (current size: %d)",
+                        newItems, maxListSize, currentSize
+                );
+            }
+        }
+
+        return "Input is valid";
+    }
+
+    @Override
     public String[] toTabCompleter(String arg) {
         List<String> completions = new ArrayList<>();
         if ("clear".startsWith(arg)) completions.add("clear");
