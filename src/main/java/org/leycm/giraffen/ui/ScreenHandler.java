@@ -2,6 +2,7 @@ package org.leycm.giraffen.ui;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import org.leycm.giraffen.uiold.ExampleScreen;
 import org.leycm.giraffen.uiold.ModuleScreen;
 
 import java.util.HashMap;
@@ -15,6 +16,7 @@ public class ScreenHandler {
 
     public static void startClient() {
         new ModuleScreen();
+        new ExampleScreen();
     }
 
     public static void register(String id, Screen screen) {
