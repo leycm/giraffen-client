@@ -252,9 +252,6 @@ public class TabWidget implements Drawable, Element {
         int snapX;
         int snapY;
 
-        boolean dependentX = false;
-        boolean dependentY = false;
-
         snapX = Math.round((float) newX / GRID_SIZE) * GRID_SIZE;
         snapY = Math.round((float) newY / GRID_SIZE) * GRID_SIZE;
 
@@ -269,7 +266,6 @@ public class TabWidget implements Drawable, Element {
                 snapX = other.x - width - HORIZONTAL_SNAP_GAP;
             } else if (Math.abs(newX - other.x) < SNAP_THRESHOLD) {
                 snapX = other.x;
-                dependentX = true;
             } else if (Math.abs(newX + width - other.x) < SNAP_THRESHOLD) {
                 snapX = other.x - width;
             } else if (Math.abs(newX - (other.x + other.width)) < SNAP_THRESHOLD) {
@@ -284,17 +280,8 @@ public class TabWidget implements Drawable, Element {
                 snapY = other.y - height;
             } else if (Math.abs(newY - (other.y + otherActualHeight + VERTICAL_BOTTOM_GAP)) < SNAP_THRESHOLD) {
                 snapY = other.y + otherActualHeight + VERTICAL_BOTTOM_GAP;
-                dependentY = true;
             } else if (Math.abs(newY + height - (other.y + otherActualHeight)) < SNAP_THRESHOLD) {
                 snapY = other.y + otherActualHeight - height;
-            }
-
-            if (dependentX || dependentY) {
-                other.addDependentTab(this);
-                Client.LOGGER.info("addet " + this.title + " to " + other.title);
-            } else {
-                other.removeDependentTab(this);
-                Client.LOGGER.info("try remove " + this.title + " from " + other.title);
             }
 
         }
@@ -385,12 +372,10 @@ public class TabWidget implements Drawable, Element {
     }
 
     public void move(int x, int y) {
-        this.x = this.x + x;
-        this.y = this.y + y;
-    }
-
-    public void addGridElement(String text) {
-        gridElements.add(new GridElement(text));
+        Client.LOGGER.info("x=" + x + "  y=" + y);
+        Client.LOGGER.info("altX= " + getX() + "  altY=" + getY());
+        Client.LOGGER.info("newX=" + (getX() + x) + "  newY=" + (getY() + y));
+        setPosition(getX() + x, getY() + y);
     }
 
     public void addDependentTab(TabWidget widget) {
@@ -399,6 +384,14 @@ public class TabWidget implements Drawable, Element {
 
     public void removeDependentTab(TabWidget widget) {
         dependentTabs.remove(widget);
+    }
+
+    public List<TabWidget> getDependentTab() {
+        return dependentTabs;
+    }
+
+    public void addGridElement(String text) {
+        gridElements.add(new GridElement(text));
     }
 
     public void removeGridElement(int index) {
@@ -413,7 +406,7 @@ public class TabWidget implements Drawable, Element {
 
     public void setCollapsed(boolean collapsed) {
         this.collapsed = collapsed;
-        dependentTabs.forEach(tab -> tab.move(0, this.height + this.footerHeight * (collapsed ? -1 : 1)));
+        dependentTabs.forEach(tab -> tab.move(0, (this.height - this.headerHeight) * (collapsed ? -1 : 1)));
 
         if (onUpdate != null) onUpdate.accept(this);
     }
@@ -432,10 +425,6 @@ public class TabWidget implements Drawable, Element {
     public void setPosition(int x, int y) {
         this.x = x;
         this.y = y;
-    }
-
-    public static void setSnapThreshold(int threshold) {
-        // Could be made configurable if needed
     }
 
     public static void clearAllWidgets() {

@@ -1,7 +1,7 @@
 package org.leycm.giraffen.ui;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import org.leycm.giraffen.Client;
 import org.leycm.giraffen.uiold.ExampleScreen;
 import org.leycm.giraffen.uiold.ModuleScreen;
 
@@ -30,9 +30,12 @@ public class ScreenHandler {
 
     public static void run(){
         if(toOpen.isEmpty()) return;
+
         String id = toOpen.stream().findFirst().orElse("");
-        MinecraftClient.getInstance().setScreen(screens.get(id));
-        toOpen.remove(id);
+        if (id.isEmpty() || !screens.containsKey(id) || Client.MC.currentScreen == null) {
+            Client.MC.setScreen(screens.get(id));
+            toOpen.remove(id);
+        }
     }
 
 
