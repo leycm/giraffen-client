@@ -8,9 +8,11 @@ import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.leycm.giraffen.Client;
+import org.leycm.giraffen.settings.Group;
 import org.leycm.giraffen.ui.UiRenderCallback;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -34,7 +36,8 @@ public class TabWidget implements Drawable, Element {
     private final List<GridElement> gridElements = new ArrayList<>();
     private static final List<TabWidget> allTabWidgets = new ArrayList<>();
 
-    private static final List<TabWidget> dependentTabs = new ArrayList<>();
+    private TabWidget dependentTabX = null;
+    private TabWidget dependentTabY = null;
 
     private final int headerHeight = 20;
     private final int footerHeight = 16;
@@ -249,44 +252,75 @@ public class TabWidget implements Drawable, Element {
 
     @Contract("_, _ -> new")
     private @NotNull SnapResult calculateSnapPosition(int newX, int newY) {
-        int snapX;
-        int snapY;
-
-        snapX = Math.round((float) newX / GRID_SIZE) * GRID_SIZE;
-        snapY = Math.round((float) newY / GRID_SIZE) * GRID_SIZE;
+        int snapX = Math.round((float) newX / GRID_SIZE) * GRID_SIZE;
+        int snapY = Math.round((float) newY / GRID_SIZE) * GRID_SIZE;
+        TabWidget snappedWidget = null;
+        EnumSet<SnapType> snapTypes = EnumSet.noneOf(SnapType.class);
+        boolean hasGapX = false;
+        boolean hasGapY = false;
 
         for (TabWidget other : allTabWidgets) {
             if (other == this || !other.visible) continue;
 
             int otherActualHeight = other.collapsed ? other.headerHeight : other.height;
 
+            // Horizontale Snap-Prüfungen
             if (Math.abs(newX - (other.x + other.width + HORIZONTAL_SNAP_GAP)) < SNAP_THRESHOLD) {
                 snapX = other.x + other.width + HORIZONTAL_SNAP_GAP;
+                snappedWidget = other;
+                snapTypes.add(SnapType.RIGHT);
+                hasGapX = true;
             } else if (Math.abs(newX + width + HORIZONTAL_SNAP_GAP - other.x) < SNAP_THRESHOLD) {
                 snapX = other.x - width - HORIZONTAL_SNAP_GAP;
+                snappedWidget = other;
+                snapTypes.add(SnapType.LEFT);
+                hasGapX = true;
             } else if (Math.abs(newX - other.x) < SNAP_THRESHOLD) {
                 snapX = other.x;
+                snappedWidget = other;
+                snapTypes.add(SnapType.LEFT);
             } else if (Math.abs(newX + width - other.x) < SNAP_THRESHOLD) {
-                snapX = other.x - width;
+                snapX = other.x - width - HORIZONTAL_SNAP_GAP;
+                snappedWidget = other;
+                snapTypes.add(SnapType.RIGHT);
             } else if (Math.abs(newX - (other.x + other.width)) < SNAP_THRESHOLD) {
-                snapX = other.x + other.width;
+                snapX = other.x + other.width + HORIZONTAL_SNAP_GAP;
+                snappedWidget = other;
+                snapTypes.add(SnapType.RIGHT);
             } else if (Math.abs(newX + width - (other.x + other.width)) < SNAP_THRESHOLD) {
                 snapX = other.x + other.width - width;
+                snappedWidget = other;
+                snapTypes.add(SnapType.LEFT);
             }
 
+            // Vertikale Snap-Prüfungen
             if (Math.abs(newY - other.y) < SNAP_THRESHOLD) {
                 snapY = other.y;
+                // Nur snappedWidget setzen wenn noch nicht gesetzt
+                if (snappedWidget == null) snappedWidget = other;
+                snapTypes.add(SnapType.TOP);
             } else if (Math.abs(newY + height - other.y) < SNAP_THRESHOLD) {
                 snapY = other.y - height;
+                if (snappedWidget == null) snappedWidget = other;
+                snapTypes.add(SnapType.BOTTOM);
             } else if (Math.abs(newY - (other.y + otherActualHeight + VERTICAL_BOTTOM_GAP)) < SNAP_THRESHOLD) {
                 snapY = other.y + otherActualHeight + VERTICAL_BOTTOM_GAP;
+                if (snappedWidget == null) snappedWidget = other;
+                snapTypes.add(SnapType.BOTTOM);
+                hasGapY = true;
             } else if (Math.abs(newY + height - (other.y + otherActualHeight)) < SNAP_THRESHOLD) {
                 snapY = other.y + otherActualHeight - height;
+                if (snappedWidget == null) snappedWidget = other;
+                snapTypes.add(SnapType.TOP);
             }
 
+            // Früh beenden wenn sowohl horizontal als auch vertikal gesnapped wurde
+            if (snapTypes.size() >= 2) {
+                break;
+            }
         }
 
-        return new SnapResult(snapX, snapY);
+        return new SnapResult(snapX, snapY, snappedWidget, snapTypes, hasGapX, hasGapY);
     }
 
     @Override
@@ -337,8 +371,14 @@ public class TabWidget implements Drawable, Element {
 
         // Apply snapping
         SnapResult snapResult = calculateSnapPosition(newX, newY);
-        x = snapResult.snapX;
-        y = snapResult.snapY;
+
+        moveTo(snapResult.snapX, snapResult.snapY);
+
+        if (snapResult.isSnappedTo(SnapType.LEFT) && snapResult.isSnappedTo(SnapType.BOTTOM)) {
+            snapResult.snappedToWidget().setDependentTabY(this);
+        } else if (snapResult.isSnappedTo(SnapType.RIGHT) && snapResult.isSnappedTo(SnapType.TOP)) {
+            snapResult.snappedToWidget().setDependentTabX(this);
+        }
 
         if (onUpdate != null) onUpdate.accept(this);
         return true;
@@ -372,22 +412,15 @@ public class TabWidget implements Drawable, Element {
     }
 
     public void move(int x, int y) {
-        Client.LOGGER.info("x=" + x + "  y=" + y);
-        Client.LOGGER.info("altX= " + getX() + "  altY=" + getY());
-        Client.LOGGER.info("newX=" + (getX() + x) + "  newY=" + (getY() + y));
-        setPosition(getX() + x, getY() + y);
+        System.out.println("move: [" + x + ", " + y + "]");
+        moveTo(getX() + x, getY() + y);
     }
 
-    public void addDependentTab(TabWidget widget) {
-        dependentTabs.add(widget);
-    }
-
-    public void removeDependentTab(TabWidget widget) {
-        dependentTabs.remove(widget);
-    }
-
-    public List<TabWidget> getDependentTab() {
-        return dependentTabs;
+    public void moveTo(int x, int y) {
+        System.out.println("moveTo: [" + x + ", " + y + "]");
+        if(dependentTabY != null) this.dependentTabY.moveTo(x, y);
+        if(dependentTabX != null) this.dependentTabX.moveTo(x, y);
+        setPosition(x, y);
     }
 
     public void addGridElement(String text) {
@@ -406,7 +439,9 @@ public class TabWidget implements Drawable, Element {
 
     public void setCollapsed(boolean collapsed) {
         this.collapsed = collapsed;
-        dependentTabs.forEach(tab -> tab.move(0, (this.height - this.headerHeight) * (collapsed ? -1 : 1)));
+        if(dependentTabY != null) {
+            dependentTabY.move(0, (this.height - this.headerHeight) * (collapsed ? -1 : 1));
+        }
 
         if (onUpdate != null) onUpdate.accept(this);
     }
@@ -431,6 +466,14 @@ public class TabWidget implements Drawable, Element {
         allTabWidgets.clear();
     }
 
+
+
+    public TabWidget getDependentTabX() {return dependentTabX;}
+    public void setDependentTabX(TabWidget dependentTabX) {this.dependentTabX = dependentTabX;}
+    public TabWidget getDependentTabY() {return dependentTabY;}
+
+    public void setDependentTabY(TabWidget dependentTabY) {this.dependentTabY = dependentTabY;}
+
     // Getters for position and dimensions
     public int getX() { return x; }
     public int getY() { return y; }
@@ -451,17 +494,6 @@ public class TabWidget implements Drawable, Element {
         return false;
     }
 
-    // Helper class for snap calculations
-    private static class SnapResult {
-        final int snapX;
-        final int snapY;
-
-        SnapResult(int snapX, int snapY) {
-            this.snapX = snapX;
-            this.snapY = snapY;
-        }
-    }
-
     private static class GridElement {
         private final String text;
 
@@ -472,5 +504,49 @@ public class TabWidget implements Drawable, Element {
         public String getText() {
             return text;
         }
+    }
+
+    private record SnapResult(
+            int snapX,
+            int snapY,
+            TabWidget snappedToWidget,
+            @NotNull EnumSet<SnapType> snapTypes,
+            boolean hasGapX,
+            boolean hasGapY
+    ) {
+
+        public SnapResult {
+            snapTypes = snapTypes.clone();
+        }
+
+        public boolean isSnapped() {
+            if (snapTypes == null) return false;
+            return !snapTypes.isEmpty();
+        }
+
+        public boolean isSnappedTo(SnapType type) {
+            return snapTypes.contains(type);
+        }
+
+        @Contract(pure = true)
+        @Override
+        public @NotNull String toString() {
+            return "SnapResult[" +
+                    "\n  snapX=" + snapX +
+                    "\n  snapY=" + snapY +
+                    "\n  snappedToWidget=" + (snappedToWidget != null ? snappedToWidget.getClass().getSimpleName() : "null") +
+                    "\n  snapTypes=" + snapTypes +
+                    "\n  hasGapX=" + hasGapX +
+                    "\n  hasGapY=" + hasGapY +
+                    "\n  isSnapped=" + isSnapped() +
+                    "\n]";
+        }
+    }
+
+    enum SnapType {
+        LEFT,
+        RIGHT,
+        TOP,
+        BOTTOM
     }
 }
