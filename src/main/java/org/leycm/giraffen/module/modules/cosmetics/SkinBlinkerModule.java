@@ -1,10 +1,11 @@
-package org.leycm.giraffen.module.impl.cosmetics;
+package org.leycm.giraffen.module.modules.cosmetics;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerModelPart;
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.modules.BaseModule;
-import org.leycm.giraffen.module.modules.ThreadModule;
+import org.leycm.giraffen.module.common.BaseModule;
+import org.leycm.giraffen.module.common.ThreadModule;
+import org.leycm.giraffen.settings.Group;
 import org.leycm.giraffen.settings.Setting;
 import org.leycm.giraffen.settings.fields.BooleanField;
 import org.leycm.giraffen.settings.fields.DropDownField;
@@ -48,11 +49,12 @@ public class SkinBlinkerModule extends ThreadModule {
             int settingId = Arrays.asList(PlayerModelPart.values()).indexOf(modelPart) + 2;
             String settingKey = modelPart.toString().toLowerCase();
 
-            setSetting(settingId, Setting.of("display-" + settingKey, config, s -> getData("blinker.type", String.class, "blinking").equals("custom"))
+            setSetting(settingId, Setting.of(settingKey, config, s -> getData("blinker.type", String.class, "blinking").equals("custom"))
                     .field(new BooleanField(
                             settingKey + ".blinking",
                             !modelPart.equals(PlayerModelPart.CAPE)
                     ))
+                    .group(new Group("blink", "Parts to Blink"))
                     .prefix(modelPart.getName())
             );
 

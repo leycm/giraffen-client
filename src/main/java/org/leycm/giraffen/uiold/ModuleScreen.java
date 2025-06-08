@@ -8,8 +8,7 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.modules.BaseModule;
-import org.leycm.giraffen.ui.ScreenHandler;
+import org.leycm.giraffen.module.common.BaseModule;
 import org.leycm.giraffen.uiold.buttons.ModuleButton;
 
 import java.util.ArrayList;
@@ -109,10 +108,10 @@ public class ModuleScreen extends Screen {
             this.searchField = new TextFieldWidget(
                     this.textRenderer,
                     fieldX, fieldY, fieldWidth, fieldHeight,
-                    Text.literal("Search impl...")
+                    Text.literal("Search modules...")
             );
 
-            this.searchField.setPlaceholder(Text.literal("Search impl..."));
+            this.searchField.setPlaceholder(Text.literal("Search modules..."));
             this.searchField.setChangedListener(this::onSearchChanged);
             this.addDrawableChild(this.searchField);
         } else {
@@ -283,7 +282,7 @@ public class ModuleScreen extends Screen {
 
         context.disableScissor();
 
-        String moduleInfo = filteredModules.size() + " impl" +
+        String moduleInfo = filteredModules.size() + " modules" +
                 (selectedGroup.equals("🔍") ? " found" : " in " + selectedGroup);
         context.drawTextWithShadow(
                 this.textRenderer,

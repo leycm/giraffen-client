@@ -8,12 +8,12 @@ import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.leycm.giraffen.Client;
-import org.leycm.giraffen.settings.Group;
 import org.leycm.giraffen.ui.UiRenderCallback;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class TabWidget implements Drawable, Element {
@@ -296,7 +296,6 @@ public class TabWidget implements Drawable, Element {
             // Vertikale Snap-Prüfungen
             if (Math.abs(newY - other.y) < SNAP_THRESHOLD) {
                 snapY = other.y;
-                // Nur snappedWidget setzen wenn noch nicht gesetzt
                 if (snappedWidget == null) snappedWidget = other;
                 snapTypes.add(SnapType.TOP);
             } else if (Math.abs(newY + height - other.y) < SNAP_THRESHOLD) {
@@ -374,14 +373,25 @@ public class TabWidget implements Drawable, Element {
 
         moveTo(snapResult.snapX, snapResult.snapY);
 
-        if (snapResult.isSnappedTo(SnapType.LEFT) && snapResult.isSnappedTo(SnapType.BOTTOM)) {
+        if (snapResult.isSnappedTo(SnapType.LEFT) && snapResult.isSnappedTo(SnapType.BOTTOM) && shouldSetDependentTabY(snapResult)) {
             snapResult.snappedToWidget().setDependentTabY(this);
-        } else if (snapResult.isSnappedTo(SnapType.RIGHT) && snapResult.isSnappedTo(SnapType.TOP)) {
+        } else if (snapResult.isSnappedTo(SnapType.RIGHT) && snapResult.isSnappedTo(SnapType.TOP) && shouldSetDependentTabY(snapResult)) {
             snapResult.snappedToWidget().setDependentTabX(this);
         }
 
         if (onUpdate != null) onUpdate.accept(this);
         return true;
+    }
+
+    private boolean shouldSetDependentTabY(SnapResult snapResult) {
+        if (snapResult == null || snapResult.snappedToWidget() == null) {
+            return false;
+        }
+
+        return snapResult.isSnappedTo(SnapType.LEFT) &&
+                snapResult.isSnappedTo(SnapType.BOTTOM) &&
+                !Objects.equals(this.dependentTabX, snapResult.snappedToWidget()) &&
+                !Objects.equals(this.dependentTabY, snapResult.snappedToWidget());
     }
 
     @Override
@@ -412,14 +422,12 @@ public class TabWidget implements Drawable, Element {
     }
 
     public void move(int x, int y) {
-        System.out.println("move: [" + x + ", " + y + "]");
         moveTo(getX() + x, getY() + y);
     }
 
     public void moveTo(int x, int y) {
-        System.out.println("moveTo: [" + x + ", " + y + "]");
-        if(dependentTabY != null) this.dependentTabY.moveTo(x, y);
-        if(dependentTabX != null) this.dependentTabX.moveTo(x, y);
+        //if(dependentTabX != null) this.dependentTabX.move(x - this.x, y - this.y);
+        //if(dependentTabY != null) this.dependentTabY.move(x - this.x, y - this.y);
         setPosition(x, y);
     }
 

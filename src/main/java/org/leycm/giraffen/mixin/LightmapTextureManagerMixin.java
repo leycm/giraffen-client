@@ -2,7 +2,7 @@ package org.leycm.giraffen.mixin;
 
 import net.minecraft.client.gl.SimpleFramebuffer;
 import net.minecraft.client.render.LightmapTextureManager;
-import org.leycm.giraffen.module.impl.utils.FullbrightModule;
+import org.leycm.giraffen.module.modules.utils.FullbrightModule;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

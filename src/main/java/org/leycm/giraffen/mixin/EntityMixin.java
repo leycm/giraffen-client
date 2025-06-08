@@ -7,7 +7,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.NotNull;
-import org.leycm.giraffen.module.impl.esp.EntityEspModule;
+import org.leycm.giraffen.module.modules.esp.EntityEspModule;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,6 +26,7 @@ public abstract class EntityMixin {
 
     @Inject(method = "isGlowing", at = @At("HEAD"), cancellable = true)
     public void onIsGlowing(CallbackInfoReturnable<Boolean> cir) {
+        if (!EntityEspModule.getInstance().getData("esp.type", String.class, "glowing").equals("glowing") || !EntityEspModule.getInstance().isRunning()) return;
         Entity entity = (Entity)(Object)this;
         boolean shouldGlow = EntityEspModule.getInstance().shouldGlow(entity);
 
@@ -35,8 +36,11 @@ public abstract class EntityMixin {
 
     @Inject(method = "getTeamColorValue", at = @At("HEAD"), cancellable = true)
     public void onGetTeamColorValue(@NotNull CallbackInfoReturnable<Integer> cir) {
+        if (!EntityEspModule.getInstance().getData("esp.type", String.class, "glowing").equals("glowing") || !EntityEspModule.getInstance().isRunning()) return;
+
         Entity entity = (Entity)(Object)this;
         int color = EntityEspModule.getInstance().getColor(entity);
+
 
         cir.setReturnValue(color);
     }

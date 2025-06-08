@@ -1,4 +1,4 @@
-package org.leycm.giraffen.module.modules;
+package org.leycm.giraffen.module.common;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -42,7 +42,7 @@ public abstract class BaseModule {
         this.displayName = displayName;
         this.id = id;
         this.category = category;
-        this.config = JavaStorage.of("impl/" + category + "/" + id, StorageBase.Type.JSON, JavaStorage.class);
+        this.config = JavaStorage.of("modules/" + category + "/" + id, StorageBase.Type.JSON, JavaStorage.class);
     }
 
     public boolean enable() {

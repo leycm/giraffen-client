@@ -2,14 +2,14 @@ package org.leycm.giraffen.module;
 
 import org.jetbrains.annotations.NotNull;
 import org.leycm.giraffen.Client;
-import org.leycm.giraffen.module.modules.BaseModule;
-import org.leycm.giraffen.module.impl.cosmetics.CapeLoaderModule;
-import org.leycm.giraffen.module.impl.cosmetics.SkinBlinkerModule;
-import org.leycm.giraffen.module.impl.crasher.BundleCrashModule;
-import org.leycm.giraffen.module.impl.esp.EntityEspModule;
-import org.leycm.giraffen.module.impl.movment.AirJumpModule;
-import org.leycm.giraffen.module.impl.utils.SkinChangerModule;
-import org.leycm.giraffen.module.impl.utils.FullbrightModule;
+import org.leycm.giraffen.module.common.BaseModule;
+import org.leycm.giraffen.module.modules.cosmetics.CapeLoaderModule;
+import org.leycm.giraffen.module.modules.cosmetics.SkinBlinkerModule;
+import org.leycm.giraffen.module.modules.crasher.BundleCrashModule;
+import org.leycm.giraffen.module.modules.esp.EntityEspModule;
+import org.leycm.giraffen.module.modules.movment.AirJumpModule;
+import org.leycm.giraffen.module.modules.utils.SkinChangerModule;
+import org.leycm.giraffen.module.modules.utils.FullbrightModule;
 import org.leycm.storage.StorageBase;
 import org.leycm.storage.impl.JavaStorage;
 
@@ -18,7 +18,7 @@ import java.util.*;
 public class Modules {
     public static final Map<String, BaseModule> instances = new HashMap<>();
     private static final Set<BaseModule> running = new HashSet<>();
-    private static final StorageBase config = StorageBase.of("impl/data", StorageBase.Type.JSON, JavaStorage.class);
+    private static final StorageBase config = StorageBase.of("modules/data", StorageBase.Type.JSON, JavaStorage.class);
 
     public static BaseModule getModule(String id) {
         return instances.get(id);
@@ -42,7 +42,7 @@ public class Modules {
         }
 
         @SuppressWarnings("unchecked")
-        List<String> lastTimeActive = (List<String>) config.get("impl.active", List.class, new ArrayList<>());
+        List<String> lastTimeActive = (List<String>) config.get("modules.active", List.class, new ArrayList<>());
         Client.LOGGER.info(lastTimeActive.toString());
         instances.forEach((id, module) -> {
             if(lastTimeActive.contains(id)) module.enable();
@@ -56,7 +56,7 @@ public class Modules {
         instances.forEach((moduleid, module) -> {
             module.saveSettings();
         });
-        config.set("impl.active", getRunningModuleIds());
+        config.set("modules.active", getRunningModuleIds());
         config.save();
     }
 

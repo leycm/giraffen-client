@@ -1,11 +1,11 @@
-package org.leycm.giraffen.module.impl.crasher;
+package org.leycm.giraffen.module.modules.crasher;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.packet.c2s.play.BundleItemSelectedC2SPacket;
 import net.minecraft.text.Text;
-import org.leycm.giraffen.module.modules.CrasherModule;
+import org.leycm.giraffen.module.common.CrasherModule;
 
 public class BundleCrashModule extends CrasherModule {
     public BundleCrashModule() {

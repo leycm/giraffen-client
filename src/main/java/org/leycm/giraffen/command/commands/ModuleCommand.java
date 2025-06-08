@@ -8,7 +8,7 @@ import net.minecraft.client.network.ClientCommandSource;
 import net.minecraft.text.Text;
 import org.leycm.giraffen.command.CommandRegistration;
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.modules.BaseModule;
+import org.leycm.giraffen.module.common.BaseModule;
 import org.leycm.giraffen.ui.ScreenHandler;
 
 import static org.leycm.giraffen.command.GiraffenCommand.argument;

@@ -1,7 +1,7 @@
-package org.leycm.giraffen.module.impl.movment;
+package org.leycm.giraffen.module.modules.movment;
 
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.modules.BaseModule;
+import org.leycm.giraffen.module.common.BaseModule;
 
 public class AirJumpModule extends BaseModule {
 

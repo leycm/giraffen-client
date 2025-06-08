@@ -1,12 +1,13 @@
-package org.leycm.giraffen.module.impl.esp;
+package org.leycm.giraffen.module.modules.esp;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.Monster;
+import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.WaterAnimalEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import org.leycm.giraffen.module.Modules;
-import org.leycm.giraffen.module.modules.BaseModule;
+import org.leycm.giraffen.module.common.BaseModule;
 import org.leycm.giraffen.settings.Group;
 import org.leycm.giraffen.settings.Setting;
 import org.leycm.giraffen.settings.fields.BooleanField;
@@ -24,21 +25,21 @@ public class EntityEspModule extends BaseModule {
                 .field(new DropDownField("esp.type", "glowing", Map.of("glowing", "Vanilla Glowing")))
         );
 
-        setSetting(1, Setting.of("display-player", config)
+        setSetting(1, Setting.of("player", config)
                 .field(new BooleanField("esp.groups.player.show", true))
                 .field(new RgbColorField("esp.groups.player.color", "#FF0000"))
                 .group(new Group("display", "Display"))
                 .prefix("Player")
         );
 
-        setSetting(2, Setting.of("display-water", config)
+        setSetting(2, Setting.of("water", config)
                 .field(new BooleanField("esp.groups.water.show", false))
                 .field(new RgbColorField("esp.groups.water.color", "#FFFFFF"))
                 .group(new Group("display", "Display"))
                 .prefix("Water")
         );
 
-        setSetting(3, Setting.of("display-monster", config)
+        setSetting(3, Setting.of("monster", config)
                 .field(new BooleanField("esp.groups.monster.show", true))
                 .field(new RgbColorField("esp.groups.monster.color", "#FFFFFF"))
                 .group(new Group("display", "Display"))
@@ -80,26 +81,26 @@ public class EntityEspModule extends BaseModule {
     }
 
     public boolean shouldGlow(Entity entity) {
-        if (!getData("esp.type", String.class, "glowing").equals("glowing") || !isRunning()) return false;
 
         return switch (entity) {
-            case PlayerEntity playerEntity -> getData("esp.groups.player.show", Boolean.class, true);
+            case PlayerEntity player -> getData("esp.groups.player.show", Boolean.class, true);
             case Monster monster -> getData("esp.groups.monster.show", Boolean.class, true);
-            case WaterAnimalEntity waterAnimalEntity -> getData("esp.groups.water.show", Boolean.class, false);
-            case PassiveEntity passiveEntity -> getData("esp.groups.passive.show", Boolean.class, false);
+            case WaterAnimalEntity animal -> getData("esp.groups.water.show", Boolean.class, false);
+            case AnimalEntity animal -> getData("esp.groups.animal.show", Boolean.class, false);
+            case PassiveEntity passive -> getData("esp.groups.passive.show", Boolean.class, false);
             case null, default -> getData("esp.groups.default.show", Boolean.class, false);
         };
+
     }
 
     public int getColor(Entity entity) {
-        if (!getData("esp.type", String.class, "glowing").equals("glowing") || !isRunning())
-            return 0xFFFFFF;
 
         String colorHex = switch (entity) {
-            case PlayerEntity playerEntity -> getData("esp.groups.player.color", String.class, "#FF0000");
+            case PlayerEntity player -> getData("esp.groups.player.color", String.class, "#FF0000");
             case Monster monster -> getData("esp.groups.monster.color", String.class, "#FFFFFF");
-            case WaterAnimalEntity waterAnimalEntity -> getData("esp.groups.water.color", String.class, "#FFFFFF");
-            case PassiveEntity passiveEntity -> getData("esp.groups.passive.color", String.class, "#FFFFFF");
+            case WaterAnimalEntity animal -> getData("esp.groups.water.color", String.class, "#FFFFFF");
+            case AnimalEntity animal -> getData("esp.groups.animal.color", String.class, "#FFFFFF");
+            case PassiveEntity passive -> getData("esp.groups.passive.color", String.class, "#FFFFFF");
             case null, default -> getData("esp.groups.default.color", String.class, "#FFFFFF");
         };
 

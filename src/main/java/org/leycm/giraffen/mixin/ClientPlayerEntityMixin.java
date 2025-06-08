@@ -1,7 +1,7 @@
 package org.leycm.giraffen.mixin;
 
 import net.minecraft.client.network.ClientPlayerEntity;
-import org.leycm.giraffen.module.impl.movment.AirJumpModule;
+import org.leycm.giraffen.module.modules.movment.AirJumpModule;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;

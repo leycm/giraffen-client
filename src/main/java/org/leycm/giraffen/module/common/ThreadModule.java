@@ -1,4 +1,4 @@
-package org.leycm.giraffen.module.modules;
+package org.leycm.giraffen.module.common;
 
 public abstract class ThreadModule extends BaseModule {
 
