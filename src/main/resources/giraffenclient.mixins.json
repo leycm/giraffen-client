@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "org.leycm.giraffen.mixin",
+  "package": "org.leycm.giraffe.client.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
   ],

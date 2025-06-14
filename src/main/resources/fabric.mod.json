@@ -16,7 +16,7 @@
   "environment": "client",
   "entrypoints": {
     "main": [
-      "org.leycm.giraffen.Client"
+      "org.leycm.giraffe.client.Client"
     ]
   },
   "mixins": [
