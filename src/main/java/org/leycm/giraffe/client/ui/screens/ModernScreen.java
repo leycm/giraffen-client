@@ -5,68 +5,48 @@ import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
+import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
+
 import org.leycm.giraffe.client.Client;
 import org.leycm.giraffe.client.identifier.CachedIdentifier;
-import org.leycm.giraffe.client.identifier.IdentifierRegistry;
 import org.leycm.giraffe.client.ui.ScreenHandler;
+import org.leycm.giraffe.client.ui.widgets.MediaWidget;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public abstract class ModernScreen extends Screen {
-    private static final CachedIdentifier IMAGE = IdentifierRegistry.loadTexture("C:\\Users\\Admin\\Pictures\\Screenshots\\Screenshot 2025-06-02 182334.png");
+    private final CachedIdentifier backGround;
 
-    Set<Element> children = new HashSet<>();
-
-    protected ModernScreen(String id, String title) {
-        super(Text.literal(title));
+    protected ModernScreen(String id, CachedIdentifier texture) {
+        super(Text.literal(""));
         ScreenHandler.register(id, this);
+        this.backGround = texture;
     }
 
     @Override
     protected void init() {
         super.init();
+
+        int mediaWidth = Math.min(backGround.width() / 2, width);
+        int mediaHeight = Math.min(backGround.height() / 2, height);
+        int mediaX = width - mediaWidth;
+        int mediaY = height - mediaHeight;
+
+        MediaWidget mediaWidget = new MediaWidget(mediaX, mediaY, mediaWidth, mediaHeight, backGround, MediaWidget.RenderMode.COVER, 0x30FFFFFF);
+        addDrawable(mediaWidget);
+        //hide hud
+
         onInit();
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        renderCustomBackground(context);
-
-        onRender();
-
+    public void render(@NotNull DrawContext context, int mouseX, int mouseY, float delta) {
+        super.applyBlur();
+        context.fill(0, 0, width, height, 0xB0000000);
         super.render(context, mouseX, mouseY, delta);
-    }
-
-    private void renderCustomBackground(@NotNull DrawContext context) {
-        context.fill(0, 0, this.width, this.height, 0x60000000);
-
-        float aspectRatio = (float) IMAGE.width() / IMAGE.height();
-
-        int newHeight = (int)(this.width * aspectRatio);
-
-        int yPos = this.height - newHeight;
-
-        Function<Identifier, RenderLayer> renderLayers = id -> RenderLayer.getGui();
-
-        context.drawTexture(
-                renderLayers,
-                IMAGE.identifier(),
-                0, yPos,
-                0, 0,
-                this.width, newHeight,
-                IMAGE.width(), IMAGE.height(),
-                0x80FFFFFF
-        );
-
-        context.fillGradient(0, 0, this.width, this.height, 0xC0101010, 0xD0101010);
+        onRender();
     }
 
     protected abstract void onRender();
@@ -78,27 +58,31 @@ public abstract class ModernScreen extends Screen {
     @Override
     public void close() {
         super.close();
+        Client.MC.options.hudHidden = false;
         Client.MC.options.getGuiScale().setValue(ScreenHandler.getOriginalGuiScale());
         Client.MC.onResolutionChanged();
     }
 
     public void clear() {
-        children.forEach(super::remove);
+        children().forEach(super::remove);
     }
 
     public void clear(Predicate<Element> predicate) {
-        children.forEach(child -> { if(predicate.test(child)) super.remove(child); });
+        children().forEach(child -> { if(predicate.test(child)) super.remove(child); });
     }
 
     @Override
     protected <T extends Element & Drawable & Selectable> T addDrawableChild(T child) {
-        children.add(child);
         return super.addDrawableChild(child);
     }
 
     @Override
     protected <T extends Element & Selectable> T addSelectableChild(T child) {
-        children.add(child);
         return super.addSelectableChild(child);
+    }
+
+    @Override
+    public boolean shouldPause() {
+        return false;
     }
 }

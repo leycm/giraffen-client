@@ -9,7 +9,6 @@ import net.minecraft.text.Text;
 import org.leycm.giraffe.client.command.CommandRegistration;
 import org.leycm.giraffe.client.module.Modules;
 import org.leycm.giraffe.client.module.common.BaseModule;
-import org.leycm.giraffe.client.ui.ScreenHandler;
 
 import static org.leycm.giraffe.client.command.GiraffenCommand.argument;
 import static org.leycm.giraffe.client.command.GiraffenCommand.literal;
@@ -17,10 +16,7 @@ import static org.leycm.giraffe.client.command.GiraffenCommand.literal;
 public class ModuleCommand {
 
     public static void register() {
-            CommandRegistration.register(literal("module").executes(ctx -> {
-                        ScreenHandler.openUi("test-screen");
-                        return 1;
-                            })
+            CommandRegistration.register(literal("module")
                     .then(argument("module", StringArgumentType.word())
                             .suggests(MODULE_SUGGESTIONS)
                             .then(literal("toggle").executes(ctx -> withModule(ctx, BaseModule::toggle)))

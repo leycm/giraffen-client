@@ -3,8 +3,10 @@ package org.leycm.giraffe.client.ui.screens;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
+import org.leycm.giraffe.client.identifier.CachedIdentifier;
 import org.leycm.giraffe.client.module.Modules;
 import org.leycm.giraffe.client.module.common.BaseModule;
+import org.leycm.giraffe.client.ui.widgets.MediaWidget;
 import org.leycm.giraffe.client.ui.widgets.ModuleCategoryList;
 import org.leycm.giraffe.client.ui.widgets.ModuleEditPanel;
 import org.leycm.giraffe.client.ui.widgets.ModuleEditPanelManager;
@@ -26,7 +28,7 @@ public class ModuleSystemScreen extends ModernScreen {
     private final Map<String, Boolean> categoryExpanded = new HashMap<>();
 
     public ModuleSystemScreen() {
-        super("module-screen", "Module System");
+        super("module-screen", CachedIdentifier.of("C:\\Users\\Admin\\Pictures\\sigmasave.png"));
         groupModulesByCategory();
     }
 

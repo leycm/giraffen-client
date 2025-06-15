@@ -1,6 +1,7 @@
 package org.leycm.giraffe.client.ui;
 
 import net.minecraft.client.gui.screen.Screen;
+import org.jetbrains.annotations.NotNull;
 import org.leycm.giraffe.client.Client;
 import org.leycm.giraffe.client.ui.screens.ModuleSystemScreen;
 import org.leycm.giraffe.client.ui.screens.TestModernScreen;
@@ -41,9 +42,16 @@ public class ScreenHandler {
                 Client.MC.options.getGuiScale().setValue(TARGET_UI_SCALE);
                 Client.MC.onResolutionChanged();
             }
+            Client.MC.options.hudHidden = true;
             Client.MC.setScreen(screen);
             toOpen.remove(id);
         }
+    }
+
+    public static @NotNull Set<String> getScreenIds() {
+        Set<String> result = new HashSet<>();
+        screens.forEach((id, module) -> result.add(id));
+        return result;
     }
 
     public static void setOriginalGuiScale(int originalGuiScale) {ScreenHandler.originalGuiScale = originalGuiScale;}

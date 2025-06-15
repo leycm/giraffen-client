@@ -85,7 +85,18 @@ public abstract class BaseModule {
     public void register() {
         CommandRegistration.register(literal(id)
                 .then(settingsTab())
+                .then(toggleTab())
         );
+    }
+
+    // Toggle
+    public LiteralArgumentBuilder<ClientCommandSource> toggleTab() {
+        LiteralArgumentBuilder<ClientCommandSource> builder = LiteralArgumentBuilder.literal("toggle");
+        builder.executes(ctx -> {
+            toggle();
+            return 1;
+        });
+        return builder;
     }
 
     // Settings

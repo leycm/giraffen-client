@@ -13,13 +13,13 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class ModuleEditPanel extends ClickableWidget {
-    private static final int HEADER_HEIGHT = 45;
+    private static final int HEADER_HEIGHT = 50;
     private static final int BUTTON_HEIGHT = 25;
-    private static final int SETTING_HEIGHT = 35;
-    private static final int SETTING_TAB_HEIGHT = 30;
+    private static final int SETTING_HEIGHT = 40;
+    private static final int SETTING_TAB_HEIGHT = 36;
     private static final int SCROLL_SPEED = 15;
-    private static final int PADDING = 12;
-    private static final int BUTTON_SIZE = 20;
+    private static final int PADDING = 16;
+    private static final int BUTTON_SIZE = 24;
 
     private BaseModule selectedModule;
     private final Consumer<ModuleEditPanel> onPanelClosed;
@@ -79,9 +79,9 @@ public class ModuleEditPanel extends ClickableWidget {
             contentHeight += PADDING;
 
             for (ModuleSettingTab tab : settingTabs) {
-                contentHeight += SETTING_TAB_HEIGHT + 4;
+                contentHeight += SETTING_TAB_HEIGHT;
                 if (tab.expanded) {
-                    contentHeight += tab.settings.size() * SETTING_HEIGHT + PADDING;
+                    contentHeight += tab.settings.size() * SETTING_HEIGHT + PADDING / 2;
                 }
             }
             contentHeight += PADDING;
@@ -96,7 +96,7 @@ public class ModuleEditPanel extends ClickableWidget {
 
         int renderHeight = minimized ? HEADER_HEIGHT : height;
 
-        drawGlassBackground(context, renderHeight);
+        drawCleanBackground(context, renderHeight);
         renderHeader(context, mouseX, mouseY);
 
         if (!minimized) {
@@ -110,35 +110,34 @@ public class ModuleEditPanel extends ClickableWidget {
         }
     }
 
-    private void drawGlassBackground(DrawContext context, int renderHeight) {
-        context.fill(getX(), getY(), getX() + width, getY() + renderHeight, 0x40000000);
+    private void drawCleanBackground(@NotNull DrawContext context, int renderHeight) {
+        context.fill(getX(), getY(), getX() + width, getY() + renderHeight, 0xFF000000);
 
-        context.fill(getX(), getY(), getX() + width, getY() + 1, 0x60FFFFFF);
-        context.fill(getX(), getY() + renderHeight - 1, getX() + width, getY() + renderHeight, 0x20000000);
-        context.fill(getX(), getY(), getX() + 1, getY() + renderHeight, 0x40FFFFFF);
-        context.fill(getX() + width - 1, getY(), getX() + width, getY() + renderHeight, 0x15000000);
+        context.fill(getX(), getY(), getX() + width, getY() + 1, 0xFF333333);
+        context.fill(getX(), getY() + renderHeight - 1, getX() + width, getY() + renderHeight, 0xFF333333);
+        context.fill(getX(), getY(), getX() + 1, getY() + renderHeight, 0xFF333333);
+        context.fill(getX() + width - 1, getY(), getX() + width, getY() + renderHeight, 0xFF333333);
     }
 
-    private void renderHeader(DrawContext context, int mouseX, int mouseY) {
-        context.fill(getX(), getY(), getX() + width, getY() + HEADER_HEIGHT, 0x50000000);
-        context.fill(getX(), getY() + HEADER_HEIGHT - 1, getX() + width, getY() + HEADER_HEIGHT, 0x30FFFFFF);
+    private void renderHeader(@NotNull DrawContext context, int mouseX, int mouseY) {
+        context.fill(getX() + 1, getY() + HEADER_HEIGHT - 1, getX() + width - 1, getY() + HEADER_HEIGHT, 0xFF222222);
 
         context.drawTextWithShadow(
                 getTextRenderer(),
                 selectedModule.getDisplayName(),
                 getX() + PADDING,
-                getY() + 8,
+                getY() + 12,
                 0xFFFFFFFF
         );
 
         boolean isEnabled = selectedModule.isRunning();
         String statusText = isEnabled ? "ENABLED" : "DISABLED";
-        int statusColor = isEnabled ? 0xFF00FF88 : 0xFF888888;
+        int statusColor = isEnabled ? 0xFFFFFFFF : 0xFF666666;
         context.drawTextWithShadow(
                 getTextRenderer(),
                 statusText,
                 getX() + PADDING,
-                getY() + 26,
+                getY() + 30,
                 statusColor
         );
 
@@ -146,17 +145,20 @@ public class ModuleEditPanel extends ClickableWidget {
     }
 
     private void renderHeaderButtons(@NotNull DrawContext context, int mouseX, int mouseY) {
-        int buttonY = getY() + 8;
+        int buttonY = getY() + 12;
         int buttonX = getX() + width - PADDING - BUTTON_SIZE;
 
         boolean closeHovered = mouseX >= buttonX && mouseX <= buttonX + BUTTON_SIZE &&
                 mouseY >= buttonY && mouseY <= buttonY + BUTTON_SIZE;
-        int closeBg = closeHovered ? 0x80FF4444 : 0x50FF4444;
-        int closeBorder = closeHovered ? 0xAAFF4444 : 0x70FF4444;
 
-        context.fill(buttonX, buttonY, buttonX + BUTTON_SIZE, buttonY + BUTTON_SIZE, closeBg);
-        context.fill(buttonX, buttonY, buttonX + BUTTON_SIZE, buttonY + 1, closeBorder);
-        context.fill(buttonX, buttonY + BUTTON_SIZE - 1, buttonX + BUTTON_SIZE, buttonY + BUTTON_SIZE, 0x40000000);
+        if (closeHovered) {
+            context.fill(buttonX, buttonY, buttonX + BUTTON_SIZE, buttonY + BUTTON_SIZE, 0xFF1A1A1A);
+        }
+
+        context.fill(buttonX, buttonY, buttonX + BUTTON_SIZE, buttonY + 1, 0xFF333333);
+        context.fill(buttonX, buttonY + BUTTON_SIZE - 1, buttonX + BUTTON_SIZE, buttonY + BUTTON_SIZE, 0xFF333333);
+        context.fill(buttonX, buttonY, buttonX + 1, buttonY + BUTTON_SIZE, 0xFF333333);
+        context.fill(buttonX + BUTTON_SIZE - 1, buttonY, buttonX + BUTTON_SIZE, buttonY + BUTTON_SIZE, 0xFF333333);
 
         context.drawCenteredTextWithShadow(
                 getTextRenderer(),
@@ -169,12 +171,15 @@ public class ModuleEditPanel extends ClickableWidget {
         buttonX -= BUTTON_SIZE + 4;
         boolean minimizeHovered = mouseX >= buttonX && mouseX <= buttonX + BUTTON_SIZE &&
                 mouseY >= buttonY && mouseY <= buttonY + BUTTON_SIZE;
-        int minimizeBg = minimizeHovered ? 0x60FFFFFF : 0x40FFFFFF;
-        int minimizeBorder = minimizeHovered ? 0x80FFFFFF : 0x60FFFFFF;
 
-        context.fill(buttonX, buttonY, buttonX + BUTTON_SIZE, buttonY + BUTTON_SIZE, minimizeBg);
-        context.fill(buttonX, buttonY, buttonX + BUTTON_SIZE, buttonY + 1, minimizeBorder);
-        context.fill(buttonX, buttonY + BUTTON_SIZE - 1, buttonX + BUTTON_SIZE, buttonY + BUTTON_SIZE, 0x40000000);
+        if (minimizeHovered) {
+            context.fill(buttonX, buttonY, buttonX + BUTTON_SIZE, buttonY + BUTTON_SIZE, 0xFF1A1A1A);
+        }
+
+        context.fill(buttonX, buttonY, buttonX + BUTTON_SIZE, buttonY + 1, 0xFF333333);
+        context.fill(buttonX, buttonY + BUTTON_SIZE - 1, buttonX + BUTTON_SIZE, buttonY + BUTTON_SIZE, 0xFF333333);
+        context.fill(buttonX, buttonY, buttonX + 1, buttonY + BUTTON_SIZE, 0xFF333333);
+        context.fill(buttonX + BUTTON_SIZE - 1, buttonY, buttonX + BUTTON_SIZE, buttonY + BUTTON_SIZE, 0xFF333333);
 
         context.drawCenteredTextWithShadow(
                 getTextRenderer(),
@@ -182,32 +187,6 @@ public class ModuleEditPanel extends ClickableWidget {
                 buttonX + BUTTON_SIZE / 2,
                 buttonY + (BUTTON_SIZE - 8) / 2,
                 0xFFFFFFFF
-        );
-
-        buttonX -= BUTTON_SIZE + 4;
-        boolean favoriteHovered = mouseX >= buttonX && mouseX <= buttonX + BUTTON_SIZE &&
-                mouseY >= buttonY && mouseY <= buttonY + BUTTON_SIZE;
-        boolean isFavorite = false;
-
-        int favoriteBg, favoriteBorder;
-        if (isFavorite) {
-            favoriteBg = favoriteHovered ? 0x90FFD700 : 0x70FFD700;
-            favoriteBorder = favoriteHovered ? 0xAAFFD700 : 0x80FFD700;
-        } else {
-            favoriteBg = favoriteHovered ? 0x60FFFFFF : 0x40FFFFFF;
-            favoriteBorder = favoriteHovered ? 0x80FFFFFF : 0x60FFFFFF;
-        }
-
-        context.fill(buttonX, buttonY, buttonX + BUTTON_SIZE, buttonY + BUTTON_SIZE, favoriteBg);
-        context.fill(buttonX, buttonY, buttonX + BUTTON_SIZE, buttonY + 1, favoriteBorder);
-        context.fill(buttonX, buttonY + BUTTON_SIZE - 1, buttonX + BUTTON_SIZE, buttonY + BUTTON_SIZE, 0x40000000);
-
-        context.drawCenteredTextWithShadow(
-                getTextRenderer(),
-                "★",
-                buttonX + BUTTON_SIZE / 2,
-                buttonY + (BUTTON_SIZE - 8) / 2,
-                isFavorite ? 0xFF000000 : 0xFFFFFFFF
         );
     }
 
@@ -223,7 +202,7 @@ public class ModuleEditPanel extends ClickableWidget {
             if (currentY > getY() + HEADER_HEIGHT - SETTING_TAB_HEIGHT && currentY < getY() + height) {
                 renderSettingTabHeader(context, tab, currentY, mouseX, mouseY);
             }
-            currentY += SETTING_TAB_HEIGHT + 3;
+            currentY += SETTING_TAB_HEIGHT;
 
             if (tab.expanded) {
                 for (Setting setting : tab.settings) {
@@ -232,18 +211,18 @@ public class ModuleEditPanel extends ClickableWidget {
                     }
                     currentY += SETTING_HEIGHT;
                 }
-                currentY += PADDING;
+                currentY += PADDING / 2;
             }
         }
     }
 
-    private void renderNoSettings(DrawContext context) {
-        String noSettingsText = "No settings";
+    private void renderNoSettings(@NotNull DrawContext context) {
+        String noSettingsText = "No settings available";
         context.drawCenteredTextWithShadow(
                 getTextRenderer(),
                 noSettingsText,
                 getX() + width / 2,
-                getY() + HEADER_HEIGHT + 20,
+                getY() + HEADER_HEIGHT + 30,
                 0xFF666666
         );
     }
@@ -252,22 +231,26 @@ public class ModuleEditPanel extends ClickableWidget {
         boolean hovered = mouseX >= getX() + PADDING && mouseX <= getX() + width - PADDING &&
                 mouseY >= y && mouseY <= y + SETTING_TAB_HEIGHT;
 
-        int tabBg = hovered ? 0xFF333333 : 0xFF282828;
-        context.fill(getX() + PADDING, y, getX() + width - PADDING, y + SETTING_TAB_HEIGHT, tabBg);
+        if (hovered) {
+            context.fill(getX() + PADDING, y, getX() + width - PADDING, y + SETTING_TAB_HEIGHT, 0xFF111111);
+        }
 
-        String icon = tab.expanded ? "▼" : "▶";
+        context.fill(getX() + PADDING * 2, y + SETTING_TAB_HEIGHT - 1,
+                getX() + width - PADDING * 2, y + SETTING_TAB_HEIGHT, 0xFF222222);
+
+        String icon = tab.expanded ? "−" : "+";
         context.drawTextWithShadow(
                 getTextRenderer(),
                 icon,
-                getX() + PADDING + 5,
+                getX() + PADDING + 8,
                 y + (SETTING_TAB_HEIGHT - 8) / 2,
-                0xFFCCCCCC
+                0xFFFFFFFF
         );
 
         context.drawTextWithShadow(
                 getTextRenderer(),
                 tab.name,
-                getX() + PADDING + 18,
+                getX() + PADDING + 28,
                 y + (SETTING_TAB_HEIGHT - 8) / 2,
                 0xFFFFFFFF
         );
@@ -278,25 +261,26 @@ public class ModuleEditPanel extends ClickableWidget {
                 mouseY >= y && mouseY <= y + SETTING_HEIGHT;
 
         if (hovered) {
-            context.fill(getX() + PADDING * 2, y, getX() + width - PADDING, y + SETTING_HEIGHT, 0xFF252525);
+            context.fill(getX() + PADDING * 2, y, getX() + width - PADDING, y + SETTING_HEIGHT, 0xFF0A0A0A);
         }
 
         context.drawTextWithShadow(
                 getTextRenderer(),
                 setting.getPrefix(),
-                getX() + PADDING * 2 + 5,
+                getX() + PADDING * 2 + 12,
                 y + (SETTING_HEIGHT - 8) / 2,
                 0xFFCCCCCC
         );
     }
 
-    private void renderScrollbar(DrawContext context) {
+    private void renderScrollbar(@NotNull DrawContext context) {
         int scrollbarX = getX() + width - 6;
         int scrollbarHeight = Math.max(15, ((height - HEADER_HEIGHT) * (height - HEADER_HEIGHT)) / contentHeight);
         int scrollbarY = getY() + HEADER_HEIGHT + (scrollY * (height - HEADER_HEIGHT - scrollbarHeight)) / (contentHeight - (height - HEADER_HEIGHT));
 
-        context.fill(scrollbarX, getY() + HEADER_HEIGHT, scrollbarX + 4, getY() + height, 0xFF222222);
-        context.fill(scrollbarX + 1, scrollbarY, scrollbarX + 3, scrollbarY + scrollbarHeight, 0xFF555555);
+        context.fill(scrollbarX, getY() + HEADER_HEIGHT, scrollbarX + 4, getY() + height, 0xFF111111);
+
+        context.fill(scrollbarX + 1, scrollbarY, scrollbarX + 3, scrollbarY + scrollbarHeight, 0xFF444444);
     }
 
     @Override
@@ -317,7 +301,7 @@ public class ModuleEditPanel extends ClickableWidget {
     }
 
     private boolean handleHeaderClick(double mouseX, double mouseY) {
-        int buttonY = getY() + 6;
+        int buttonY = getY() + 12;
         int buttonX = getX() + width - PADDING - BUTTON_SIZE;
 
         if (mouseX >= buttonX && mouseX <= buttonX + BUTTON_SIZE &&
@@ -326,18 +310,11 @@ public class ModuleEditPanel extends ClickableWidget {
             return true;
         }
 
-        buttonX -= BUTTON_SIZE + 3;
+        buttonX -= BUTTON_SIZE + 4;
         if (mouseX >= buttonX && mouseX <= buttonX + BUTTON_SIZE &&
                 mouseY >= buttonY && mouseY <= buttonY + BUTTON_SIZE) {
             minimized = !minimized;
             calculateContentHeight();
-            return true;
-        }
-
-        buttonX -= BUTTON_SIZE + 3;
-        if (mouseX >= buttonX && mouseX <= buttonX + BUTTON_SIZE &&
-                mouseY >= buttonY && mouseY <= buttonY + BUTTON_SIZE) {
-            // TODO : add favorite logik
             return true;
         }
 
@@ -353,10 +330,10 @@ public class ModuleEditPanel extends ClickableWidget {
                 calculateContentHeight();
                 return true;
             }
-            currentY += SETTING_TAB_HEIGHT + 3;
+            currentY += SETTING_TAB_HEIGHT;
 
             if (tab.expanded) {
-                currentY += tab.settings.size() * SETTING_HEIGHT + PADDING;
+                currentY += tab.settings.size() * SETTING_HEIGHT + PADDING / 2;
             }
         }
 

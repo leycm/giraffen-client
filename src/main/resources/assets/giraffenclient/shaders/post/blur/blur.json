@@ -1,0 +1,16 @@
+{
+  "targets": ["blurTarget"],
+  "passes": [
+    {
+      "name": "blur_horizontal",
+      "intarget": "minecraft:main",
+      "outtarget": "blurTarget"
+    },
+    {
+      "name": "blur_vertical",
+      "intarget": "blurTarget",
+      "outtarget": "minecraft:main"
+    }
+  ]
+
+}
