@@ -9,7 +9,13 @@ import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.leycm.giraffe.client.Client;
+import org.w3c.dom.Node;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.stream.ImageInputStream;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,13 +28,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A texture caching system that manages both local and remote textures with asynchronous loading capabilities.
- * This class handles texture loading, caching, and resource management for Minecraft textures.
+ * This class handles texture loading, caching, and resource management for Minecraft textures including GIF support.
  */
 public class IdentifierRegistry {
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(4);
+    private static final ScheduledExecutorService ANIMATION_EXECUTOR = Executors.newScheduledThreadPool(2);
     private static final TextureManager TEXTURE_MANAGER = MinecraftClient.getInstance().getTextureManager();
     private static final Map<String, CachedIdentifier> cache = new HashMap<>();
 
@@ -51,18 +60,184 @@ public class IdentifierRegistry {
 
             Identifier identifier = Identifier.of(Client.MOD_ID + "-cache", namespace + "/" + texturePath);
 
-            NativeImage image = loadImage(path);
-            int width = image.getWidth();
-            int height = image.getHeight();
+            if (path.toLowerCase().endsWith(".gif")) {
+                return loadGifTexture(path, identifier);
+            } else {
+                return loadStaticTexture(path, identifier);
+            }
 
-            TEXTURE_MANAGER.registerTexture(identifier, new NativeImageBackedTexture(image));
-
-            CachedIdentifier cached = new CachedIdentifier(identifier, width, height, path, image);
-            cache.put(path, cached);
-            return cached;
         } catch (Exception e) {
             throw new RuntimeException("Failed to load texture: " + path, e);
         }
+    }
+
+    /**
+     * Loads a static (non-animated) texture.
+     */
+    private static @NotNull CachedIdentifier loadStaticTexture(String path, Identifier identifier) throws IOException {
+        NativeImage image = loadImage(path);
+
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        TEXTURE_MANAGER.registerTexture(identifier, new NativeImageBackedTexture(image));
+
+        CachedIdentifier cached = new CachedIdentifier(
+                identifier,
+                width, height,
+                path,
+                new NativeImage[]{image},
+                -1
+        );
+
+        cache.put(path, cached);
+
+        Client.LOGGER.info(cached.toString());
+        return cached;
+    }
+
+    /**
+     * Loads a GIF texture with animation support.
+     */
+    private static @NotNull CachedIdentifier loadGifTexture(String path, Identifier identifier) throws IOException {
+        GifData gifData = loadGifFrames(path);
+        if (gifData.frames[0] == null) System.out.println("HAHhahahsdhfhf ich bin Null");
+
+        TEXTURE_MANAGER.registerTexture(identifier, new NativeImageBackedTexture(gifData.frames[0]));
+
+        CachedIdentifier cached = new CachedIdentifier(
+                identifier,
+                gifData.frames[0].getWidth(),
+                gifData.frames[0].getHeight(),
+                path,
+                gifData.frames,
+                gifData.frameDelay
+        );
+
+        cache.put(path, cached);
+
+        if (gifData.frames.length > 1) {
+            startGifAnimation(cached);
+        }
+
+        Client.LOGGER.info(cached.toString());
+        return cached;
+    }
+
+    /**
+     * Starts the animation cycle for a GIF texture.
+     */
+    private static void startGifAnimation(@NotNull CachedIdentifier cachedIdentifier) {
+        ANIMATION_EXECUTOR.scheduleAtFixedRate(() -> {
+            try {
+                NativeImage[] frames = cachedIdentifier.images();
+                if (frames.length <= 1) return;
+
+                long currentTime = System.currentTimeMillis();
+                int frameIndex = (int) ((currentTime / cachedIdentifier.frameDelayMs()) % frames.length);
+
+                // TODO : Irgendwas machen und so
+
+                NativeImageBackedTexture currentTexture = new NativeImageBackedTexture(frames[frameIndex]);
+                TEXTURE_MANAGER.registerTexture(cachedIdentifier.identifier(), currentTexture);
+
+            } catch (Exception e) {
+                System.err.println("Error updating GIF frame: " + e.getMessage());
+            }
+        }, 0, cachedIdentifier.frameDelayMs(), TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Loads all frames from a GIF file.
+     */
+    private static @NotNull GifData loadGifFrames(@NotNull String path) throws IOException {
+        File tempFile = null;
+        try {
+            File file;
+            if (path.startsWith("http")) {
+                tempFile = File.createTempFile("gif_texture_", ".gif");
+                FileUtils.copyURLToFile(URL.of(URI.create(path), null), tempFile);
+                file = tempFile;
+            } else if (path.charAt(1) == ':') {
+                file = new File(path);
+            } else {
+                file = new File(MinecraftClient.getInstance().runDirectory, path);
+            }
+
+            try (ImageInputStream input = ImageIO.createImageInputStream(file)) {
+                ImageReader reader = ImageIO.getImageReadersByFormatName("gif").next();
+                reader.setInput(input);
+
+                int frameCount = reader.getNumImages(true);
+                NativeImage[] frames = new NativeImage[frameCount];
+                int frameDelay = 100;
+
+                for (int i = 0; i < frameCount; i++) {
+                    BufferedImage bufferedImage = reader.read(i);
+                    frames[i] = convertToNativeImage(bufferedImage);
+
+                    if (i == 0) {
+                        try {
+                            IIOMetadata metadata = reader.getImageMetadata(i);
+                            String metaFormat = metadata.getNativeMetadataFormatName();
+                            Node tree = metadata.getAsTree(metaFormat);
+
+                            frameDelay = extractGifDelay(tree);
+                        } catch (Exception ignored) {}
+                    }
+                }
+
+                reader.dispose();
+                return new GifData(frames, frameDelay);
+            }
+        } finally {
+            if (tempFile != null && tempFile.exists()) {
+                tempFile.delete();
+            }
+        }
+    }
+
+    /**
+     * Extracts frame delay from GIF metadata.
+     *
+     * @param tree The IIOMetadata tree node
+     * @return Frame delay in milliseconds, or 100ms default if not found
+     */
+    private static int extractGifDelay(Node tree) {
+        if (tree == null) return 100;
+
+        for (int i = 0; i < tree.getChildNodes().getLength(); i++) {
+            Node child = tree.getChildNodes().item(i);
+            if ("GraphicControlExtension".equals(child.getNodeName())) {
+                Node delayNode = child.getAttributes().getNamedItem("delayTime");
+                try {
+                    return Math.max(Integer.parseInt(delayNode.getNodeValue()) * 10, 10);
+                } catch (Exception e) {
+                    return 100;
+                }
+            }
+            int delay = extractGifDelay(child);
+            if (delay != 100) return delay;
+        }
+        return 100;
+    }
+
+    /**
+     * Converts a BufferedImage to NativeImage.
+     */
+    private static @NotNull NativeImage convertToNativeImage(@NotNull BufferedImage bufferedImage) {
+        int width = bufferedImage.getWidth();
+        int height = bufferedImage.getHeight();
+        NativeImage nativeImage = new NativeImage(width, height, false);
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                int rgb = bufferedImage.getRGB(x, y);
+                nativeImage.setColorArgb(x, y, rgb);
+            }
+        }
+
+        return nativeImage;
     }
 
     /**
@@ -77,12 +252,11 @@ public class IdentifierRegistry {
             File tempFile = File.createTempFile("web_texture_", ".png");
             FileUtils.copyURLToFile(URL.of(URI.create(path), null), tempFile);
             return NativeImage.read(Files.newInputStream(tempFile.toPath()));
-        } else if (path.charAt(1) == ':'){ // TODO : Make better logik next time
+        } else if (path.charAt(1) == ':'){ // TODO : Make better logic next time
             Path resolvedPath = Paths.get(path);
             try (InputStream is = Files.newInputStream(resolvedPath)) {
                 return NativeImage.read(is);
             }
-
         } else {
             Path resolvedPath = Paths.get(MinecraftClient.getInstance().runDirectory.getPath(), path);
             try (InputStream is = Files.newInputStream(resolvedPath)) {
@@ -133,7 +307,9 @@ public class IdentifierRegistry {
         CachedIdentifier texture = cache.get(path);
         if (texture != null) {
             TEXTURE_MANAGER.destroyTexture(texture.identifier());
-            texture.image().close();
+            for(NativeImage image : texture.images()) {
+                if (image != null) image.close();
+            }
             cache.remove(path);
         }
     }
@@ -142,10 +318,7 @@ public class IdentifierRegistry {
      * Clears all cached textures and releases their resources.
      */
     public static void clearCache() {
-        cache.forEach((path, texture) -> {
-            TEXTURE_MANAGER.destroyTexture(texture.identifier());
-            texture.image().close();
-        });
+        cache.forEach((path, texture) -> {clearFromCache(path);});
         cache.clear();
     }
 
@@ -162,9 +335,36 @@ public class IdentifierRegistry {
             return "web_" + Math.abs(originalPath.hashCode());
         }
 
-        String filename = Paths.get(originalPath).getFileName().toString();
+        Path path = Paths.get(originalPath).toAbsolutePath();
+
+        String filename = (path.getRoot() != null)
+                ? path.subpath(0, path.getNameCount()).toString()
+                : path.toString();
+
         return filename
                 .replaceAll("[^a-zA-Z0-9._-]", "_")
-                .toLowerCase(); // Minecraft identifiers should be lowercase
+                .toLowerCase(); // mc formatting
+    }
+
+    /**
+     * Helper class to store GIF frame data and timing.
+     */
+    private static class GifData {
+        final NativeImage[] frames;
+        final int frameDelay;
+
+        GifData(NativeImage[] frames, int frameDelay) {
+            this.frames = frames;
+            this.frameDelay = frameDelay;
+        }
+    }
+
+    /**
+     * Shutdown method to clean up executors when mod is unloaded.
+     */
+    public static void shutdown() {
+        EXECUTOR.shutdown();
+        ANIMATION_EXECUTOR.shutdown();
+        clearCache();
     }
 }

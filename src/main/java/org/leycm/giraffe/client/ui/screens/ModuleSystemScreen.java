@@ -19,7 +19,6 @@ public class ModuleSystemScreen extends ModernScreen {
     private static final int SEARCH_HEIGHT = 25;
     private static final int PADDING = 20;
 
-    private TextFieldWidget searchField;
     private ModuleCategoryList categoryList;
     private ModuleEditPanelManager editPanelManager;
 
@@ -28,7 +27,7 @@ public class ModuleSystemScreen extends ModernScreen {
     private final Map<String, Boolean> categoryExpanded = new HashMap<>();
 
     public ModuleSystemScreen() {
-        super("module-screen", CachedIdentifier.of("C:\\Users\\Admin\\Pictures\\sigmasave.png"));
+        super("module-screen", CachedIdentifier.of("C:\\Users\\Admin\\Pictures\\a_853765577f0168521bb2641bf8adf065.gif"));
         groupModulesByCategory();
     }
 
@@ -47,7 +46,7 @@ public class ModuleSystemScreen extends ModernScreen {
     }
 
     private void initializeSearchField() {
-        this.searchField = new TextFieldWidget(
+        TextFieldWidget searchField = new TextFieldWidget(
                 this.textRenderer,
                 PADDING,
                 PADDING + 5,
@@ -55,8 +54,8 @@ public class ModuleSystemScreen extends ModernScreen {
                 SEARCH_HEIGHT,
                 Text.literal("Search modules...")
         );
-        this.searchField.setPlaceholder(Text.literal("Search modules..."));
-        this.searchField.setChangedListener(this::onSearchChanged);
+        searchField.setPlaceholder(Text.literal("Search modules..."));
+        searchField.setChangedListener(this::onSearchChanged);
         this.addDrawableChild(searchField);
     }
 

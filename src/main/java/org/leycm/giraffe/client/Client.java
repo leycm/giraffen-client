@@ -20,12 +20,17 @@ public class Client implements ModInitializer {
 	public static MinecraftClient MC;
 	private static boolean screenShown = false;
 
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger("Giraffen");
 
-	@Override
+    public static boolean isScreenShown() {
+        return screenShown;
+    }
+
+    public static void setScreenShown(boolean screenShown) {
+        Client.screenShown = screenShown;
+    }
+
+    @Override
 	public void onInitialize() {
 		StorageRegistry.setup("config/" + MOD_ID, java.util.logging.Logger.getLogger(LOGGER.getName()));
 
@@ -36,7 +41,6 @@ public class Client implements ModInitializer {
 			Modules.startClient(64);
 
 			ScreenHandler.startClient();
-			CapeLoaderModule.cashExternalCapeTextures();
 			ModuleCommand.register();
 			ScreenCommand.register();
 		});
