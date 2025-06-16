@@ -98,12 +98,12 @@ public class ModuleEditPanelManager extends ClickableWidget {
 
         context.drawCenteredTextWithShadow(
                 getTextRenderer(), "⚙",
-                getX() + width / 2, getY() + height / 2 - 20, 0xFF555555
+                getX() + width / 2, getY() + height / 2 - 20, 0x90555555
         );
 
         context.drawCenteredTextWithShadow(
                 getTextRenderer(), emptyText,
-                getX() + width / 2, getY() + height / 2 + 5, 0xFF888888
+                getX() + width / 2, getY() + height / 2 + 5, 0x90888888
         );
     }
 

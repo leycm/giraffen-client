@@ -61,12 +61,12 @@ public class ModuleCategoryList extends ClickableWidget {
 
     @Override
     public void renderWidget(@NotNull DrawContext context, int mouseX, int mouseY, float delta) {
-        context.fill(getX(), getY(), getX() + width, getY() + height, 0xFF000000);
+        context.fill(getX(), getY(), getX() + width, getY() + height, 0x90000000);
 
-        context.fill(getX(), getY(), getX() + width, getY() + 1, 0xFF333333);
-        context.fill(getX(), getY() + height - 1, getX() + width, getY() + height, 0xFF333333);
-        context.fill(getX(), getY(), getX() + 1, getY() + height, 0xFF333333);
-        context.fill(getX() + width - 1, getY(), getX() + width, getY() + height, 0xFF333333);
+        context.fill(getX(), getY(), getX() + width, getY() + 1, 0x90333333);
+        context.fill(getX(), getY() + height - 1, getX() + width, getY() + height, 0x90333333);
+        context.fill(getX(), getY(), getX() + 1, getY() + height, 0x90333333);
+        context.fill(getX() + width - 1, getY(), getX() + width, getY() + height, 0x90333333);
 
         context.enableScissor(getX(), getY(), getX() + width, getY() + height);
 
@@ -100,10 +100,10 @@ public class ModuleCategoryList extends ClickableWidget {
                 mouseY >= y && mouseY <= y + CATEGORY_HEIGHT;
 
         if (hovered) {
-            context.fill(getX() + 1, y, getX() + width - 1, y + CATEGORY_HEIGHT, 0xFF111111);
+            context.fill(getX() + 1, y, getX() + width - 1, y + CATEGORY_HEIGHT, 0x90111111);
         }
 
-        context.fill(getX() + 8, y + CATEGORY_HEIGHT - 1, getX() + width - 8, y + CATEGORY_HEIGHT, 0xFF222222);
+        context.fill(getX() + 8, y + CATEGORY_HEIGHT - 1, getX() + width - 8, y + CATEGORY_HEIGHT, 0x90222222);
 
         String icon = category.expanded ? "−" : "+";
         context.drawTextWithShadow(
@@ -111,7 +111,7 @@ public class ModuleCategoryList extends ClickableWidget {
                 icon,
                 getX() + 12,
                 y + (CATEGORY_HEIGHT - 8) / 2,
-                0xFFFFFFFF
+                0x90FFFFFF
         );
 
         context.drawTextWithShadow(
@@ -119,7 +119,7 @@ public class ModuleCategoryList extends ClickableWidget {
                 category.name,
                 getX() + 32,
                 y + (CATEGORY_HEIGHT - 8) / 2,
-                0xFFFFFFFF
+                0x90FFFFFF
         );
 
         String count = String.valueOf(category.modules.size());
@@ -129,7 +129,7 @@ public class ModuleCategoryList extends ClickableWidget {
                 count,
                 getX() + width - countWidth - 12,
                 y + (CATEGORY_HEIGHT - 8) / 2,
-                0xFF888888
+                0x90888888
         );
     }
 
@@ -140,7 +140,7 @@ public class ModuleCategoryList extends ClickableWidget {
                 mouseY >= y + 4 && mouseY <= y + MODULE_HEIGHT - 4;
 
         if (hovered) {
-            context.fill(getX() + 16, y, getX() + width - TOGGLE_BUTTON_WIDTH - 8, y + MODULE_HEIGHT, 0xFF0A0A0A);
+            context.fill(getX() + 16, y, getX() + width - TOGGLE_BUTTON_WIDTH - 8, y + MODULE_HEIGHT, 0x900A0A0A);
         }
 
         context.drawTextWithShadow(
@@ -148,32 +148,32 @@ public class ModuleCategoryList extends ClickableWidget {
                 module.getDisplayName(),
                 getX() + 32,
                 y + (MODULE_HEIGHT - 8) / 2,
-                0xFFCCCCCC
+                0x90CCCCCC
         );
 
         boolean enabled = module.isRunning();
 
-        int toggleBg = enabled ? 0xFFFFFFFF : 0xFF000000;
+        int toggleBg = enabled ? 0x90FFFFFF : 0x90000000;
         if (toggleHovered) {
-            toggleBg = enabled ? 0xFFEEEEEE : 0xFF0A0A0A;
+            toggleBg = enabled ? 0x90EEEEEE : 0x900A0A0A;
         }
 
         context.fill(getX() + width - TOGGLE_BUTTON_WIDTH, y + 6,
                 getX() + width - 8, y + MODULE_HEIGHT - 6, toggleBg);
 
         context.fill(getX() + width - TOGGLE_BUTTON_WIDTH, y + 6,
-                getX() + width - 8, y + 7, 0xFF333333);
+                getX() + width - 8, y + 7, 0x90333333);
         context.fill(getX() + width - TOGGLE_BUTTON_WIDTH, y + MODULE_HEIGHT - 7,
-                getX() + width - 8, y + MODULE_HEIGHT - 6, 0xFF333333);
+                getX() + width - 8, y + MODULE_HEIGHT - 6, 0x90333333);
         context.fill(getX() + width - TOGGLE_BUTTON_WIDTH, y + 6,
-                getX() + width - TOGGLE_BUTTON_WIDTH + 1, y + MODULE_HEIGHT - 6, 0xFF333333);
+                getX() + width - TOGGLE_BUTTON_WIDTH + 1, y + MODULE_HEIGHT - 6, 0x90333333);
         context.fill(getX() + width - 9, y + 6,
-                getX() + width - 8, y + MODULE_HEIGHT - 6, 0xFF333333);
+                getX() + width - 8, y + MODULE_HEIGHT - 6, 0x90333333);
 
         // Toggle text
         String toggleText = enabled ? "ON" : "OFF";
         int toggleTextWidth = getTextRenderer().getWidth(toggleText);
-        int textColor = enabled ? 0xFF000000 : 0xFFFFFFFF;
+        int textColor = enabled ? 0x90000000 : 0x90FFFFFF;
 
         context.drawTextWithShadow(
                 getTextRenderer(),
@@ -189,9 +189,9 @@ public class ModuleCategoryList extends ClickableWidget {
         int scrollbarHeight = Math.max(20, (height * height) / totalHeight);
         int scrollbarY = getY() + (scrollY * (height - scrollbarHeight)) / (totalHeight - height);
 
-        context.fill(scrollbarX, getY(), scrollbarX + 4, getY() + height, 0xFF111111);
+        context.fill(scrollbarX, getY(), scrollbarX + 4, getY() + height, 0x90111111);
 
-        context.fill(scrollbarX + 1, scrollbarY, scrollbarX + 3, scrollbarY + scrollbarHeight, 0xFF444444);
+        context.fill(scrollbarX + 1, scrollbarY, scrollbarX + 3, scrollbarY + scrollbarHeight, 0x90444444);
     }
 
     @Override

@@ -134,8 +134,8 @@ public class ModuleSystemScreen extends ModernScreen {
                     .filter(module -> module.getDisplayName().toLowerCase().contains(query) ||
                             module.getId().toLowerCase().contains(query))
                     .collect(Collectors.toList());
-
             if (!matchingModules.isEmpty()) {
+
                 filtered.put(entry.getKey(), matchingModules);
             }
         }
