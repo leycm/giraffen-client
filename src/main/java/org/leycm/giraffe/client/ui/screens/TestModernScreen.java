@@ -13,7 +13,7 @@ public class TestModernScreen extends ModernScreen {
     private MediaWidget mediaWidget;
 
     public TestModernScreen() {
-        super("test-screen", CachedIdentifier.of("C:\\Users\\Admin\\Pictures\\sigma.png"));
+        super("test-screen", CachedIdentifier.of("C:\\Users\\Admin\\Pictures\\a_853765577f0168521bb2641bf8adf065.gif"));
     }
 
     @Override

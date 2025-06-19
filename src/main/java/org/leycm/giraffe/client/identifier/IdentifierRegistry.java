@@ -1,5 +1,6 @@
 package org.leycm.giraffe.client.identifier;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
@@ -8,8 +9,10 @@ import net.minecraft.util.Identifier;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.leycm.giraffe.client.Client;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -80,6 +83,7 @@ public class IdentifierRegistry {
         int width = image.getWidth();
         int height = image.getHeight();
 
+
         TEXTURE_MANAGER.registerTexture(identifier, new NativeImageBackedTexture(image));
 
         CachedIdentifier cached = new CachedIdentifier(
@@ -101,7 +105,6 @@ public class IdentifierRegistry {
      */
     private static @NotNull CachedIdentifier loadGifTexture(String path, Identifier identifier) throws IOException {
         GifData gifData = loadGifFrames(path);
-        if (gifData.frames[0] == null) System.out.println("HAHhahahsdhfhf ich bin Null");
 
         TEXTURE_MANAGER.registerTexture(identifier, new NativeImageBackedTexture(gifData.frames[0]));
 
@@ -136,15 +139,40 @@ public class IdentifierRegistry {
                 long currentTime = System.currentTimeMillis();
                 int frameIndex = (int) ((currentTime / cachedIdentifier.frameDelayMs()) % frames.length);
 
-                // TODO : Irgendwas machen und so
+                NativeImage originalFrame = frames[frameIndex];
+                if (originalFrame == null) return;
 
-                NativeImageBackedTexture currentTexture = new NativeImageBackedTexture(frames[frameIndex]);
-                TEXTURE_MANAGER.registerTexture(cachedIdentifier.identifier(), currentTexture);
+                RenderSystem.recordRenderCall(() -> {
+                    try {
+                        NativeImage frameCopy = copyNativeImage(originalFrame);
+                        NativeImageBackedTexture texture = new NativeImageBackedTexture(frameCopy);
+                        TEXTURE_MANAGER.registerTexture(cachedIdentifier.identifier(), texture);
+                    } catch (Exception e) {
+                        //Client.LOGGER.error("Error updating GIF by NativeImageBackedTexture {}", e.getMessage());
+                    }
+                });
 
             } catch (Exception e) {
-                System.err.println("Error updating GIF frame: " + e.getMessage());
+                Client.LOGGER.error("Error updating GIF frame: {}", e.getMessage());
             }
         }, 0, cachedIdentifier.frameDelayMs(), TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Creates a copy of a NativeImage to prevent deallocation issues.
+     */
+    private static @NotNull NativeImage copyNativeImage(@NotNull NativeImage original) {
+        int width = original.getWidth();
+        int height = original.getHeight();
+        NativeImage copy = new NativeImage(width, height, false);
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                copy.setColorArgb(x, y, original.getColorArgb(x, y));
+            }
+        }
+
+        return copy;
     }
 
     /**
@@ -168,27 +196,47 @@ public class IdentifierRegistry {
                 ImageReader reader = ImageIO.getImageReadersByFormatName("gif").next();
                 reader.setInput(input);
 
+                Integer transparentColor = null;
+
                 int frameCount = reader.getNumImages(true);
                 NativeImage[] frames = new NativeImage[frameCount];
                 int frameDelay = 100;
+                int width = 0;
+                int height = 0;
+
+                if (frameCount > 0) {
+                    IIOMetadata metadata = reader.getImageMetadata(0);
+                    if (metadata != null) {
+                        Node tree = metadata.getAsTree(metadata.getNativeMetadataFormatName());
+                        width = extractDimension(tree, "ImageWidth");
+                        height = extractDimension(tree, "ImageHeight");
+                    }
+                    if (metadata != null) {
+                        Node tree = metadata.getAsTree(metadata.getNativeMetadataFormatName());
+                        transparentColor = extractTransparentColor(tree);
+                    }
+                }
 
                 for (int i = 0; i < frameCount; i++) {
                     BufferedImage bufferedImage = reader.read(i);
-                    frames[i] = convertToNativeImage(bufferedImage);
+                    if (width == 0 || height == 0) {
+                        width = bufferedImage.getWidth();
+                        height = bufferedImage.getHeight();
+                    }
+                    frames[i] = convertToNativeImage(bufferedImage, width, height, transparentColor);
 
                     if (i == 0) {
                         try {
                             IIOMetadata metadata = reader.getImageMetadata(i);
                             String metaFormat = metadata.getNativeMetadataFormatName();
                             Node tree = metadata.getAsTree(metaFormat);
-
                             frameDelay = extractGifDelay(tree);
                         } catch (Exception ignored) {}
                     }
                 }
 
                 reader.dispose();
-                return new GifData(frames, frameDelay);
+                return new GifData(frames, frameDelay, width, height);
             }
         } finally {
             if (tempFile != null && tempFile.exists()) {
@@ -225,15 +273,28 @@ public class IdentifierRegistry {
     /**
      * Converts a BufferedImage to NativeImage.
      */
-    private static @NotNull NativeImage convertToNativeImage(@NotNull BufferedImage bufferedImage) {
-        int width = bufferedImage.getWidth();
-        int height = bufferedImage.getHeight();
-        NativeImage nativeImage = new NativeImage(width, height, false);
+    private static @NotNull NativeImage convertToNativeImage(
+            @NotNull BufferedImage bufferedImage,
+            int targetWidth,
+            int targetHeight,
+            @Nullable Integer transparentColor
+    ) {
+        NativeImage nativeImage = new NativeImage(targetWidth, targetHeight, false);
 
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
+        int srcWidth = bufferedImage.getWidth();
+        int srcHeight = bufferedImage.getHeight();
+        int copyWidth = Math.min(srcWidth, targetWidth);
+        int copyHeight = Math.min(srcHeight, targetHeight);
+
+        for (int x = 0; x < copyWidth; x++) {
+            for (int y = 0; y < copyHeight; y++) {
                 int rgb = bufferedImage.getRGB(x, y);
-                nativeImage.setColorArgb(x, y, rgb);
+
+                if (transparentColor != null && (rgb & 0x00FFFFFF) == transparentColor) {
+                    nativeImage.setColorArgb(x, y, 0x00000000); // Transparent
+                } else {
+                    nativeImage.setColorArgb(x, y, rgb | 0xFF000000);
+                }
             }
         }
 
@@ -342,22 +403,100 @@ public class IdentifierRegistry {
                 : path.toString();
 
         return filename
-                .replaceAll("[^a-zA-Z0-9._-]", "_")
+                .replace("\\", "/")
+                .replaceAll("[^a-zA-Z0-9._/-]", "_")
                 .toLowerCase(); // mc formatting
+    }
+
+    private static int extractDimension(Node tree, String dimensionName) {
+        Node dimensionNode = findNode(tree, dimensionName);
+        if (dimensionNode != null) {
+            try {
+                return Integer.parseInt(dimensionNode.getAttributes().getNamedItem("value").getNodeValue());
+            } catch (Exception e) {
+                return 0;
+            }
+        }
+        return 0;
+    }
+
+    private static @Nullable Node findNode(@NotNull Node node, String nodeName) {
+        if (node.getNodeName().equals(nodeName)) {
+            return node;
+        }
+        NodeList children = node.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node found = findNode(children.item(i), nodeName);
+            if (found != null) {
+                return found;
+            }
+        }
+        return null;
+    }
+
+    private static @Nullable Integer extractTransparentColor(@NotNull Node tree) {
+        Integer transparentIndex = null;
+        NodeList children = tree.getChildNodes();
+
+        for (int i = 0; i < children.getLength(); i++) {
+            Node child = children.item(i);
+            if ("GraphicControlExtension".equals(child.getNodeName())) {
+                Node transparentNode = child.getAttributes().getNamedItem("transparentColorIndex");
+                if (transparentNode != null && !transparentNode.getNodeValue().isEmpty()) {
+                    try {
+                        transparentIndex = Integer.parseInt(transparentNode.getNodeValue());
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                    break;
+                }
+            }
+        }
+
+        Node colorTable = null;
+        for (int i = 0; i < children.getLength(); i++) {
+            Node child = children.item(i);
+            if ("ImageDescriptor".equals(child.getNodeName())) {
+                NodeList imageChildren = child.getChildNodes();
+                for (int j = 0; j < imageChildren.getLength(); j++) {
+                    if ("LocalColorTable".equals(imageChildren.item(j).getNodeName())) {
+                        colorTable = imageChildren.item(j);
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        if (colorTable == null) {
+            for (int i = 0; i < children.getLength(); i++) {
+                if ("GlobalColorTable".equals(children.item(i).getNodeName())) {
+                    colorTable = children.item(i);
+                    break;
+                }
+            }
+        }
+
+        if (colorTable == null) return null;
+        NodeList colorEntries = colorTable.getChildNodes();
+        if (transparentIndex >= 0 && transparentIndex < colorEntries.getLength()) {
+            Node colorEntry = colorEntries.item(transparentIndex);
+            try {
+                int red = Integer.parseInt(colorEntry.getAttributes().getNamedItem("red").getNodeValue());
+                int green = Integer.parseInt(colorEntry.getAttributes().getNamedItem("green").getNodeValue());
+                int blue = Integer.parseInt(colorEntry.getAttributes().getNamedItem("blue").getNodeValue());
+                return (red << 16) | (green << 8) | blue;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return transparentIndex;
     }
 
     /**
      * Helper class to store GIF frame data and timing.
      */
-    private static class GifData {
-        final NativeImage[] frames;
-        final int frameDelay;
-
-        GifData(NativeImage[] frames, int frameDelay) {
-            this.frames = frames;
-            this.frameDelay = frameDelay;
-        }
-    }
+    private record GifData(NativeImage[] frames, int frameDelay, int width, int height) { }
 
     /**
      * Shutdown method to clean up executors when mod is unloaded.

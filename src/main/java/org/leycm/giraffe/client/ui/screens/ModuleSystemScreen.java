@@ -27,7 +27,8 @@ public class ModuleSystemScreen extends ModernScreen {
     private final Map<String, Boolean> categoryExpanded = new HashMap<>();
 
     public ModuleSystemScreen() {
-        super("module-screen", CachedIdentifier.of("C:\\Users\\Admin\\Pictures\\a_853765577f0168521bb2641bf8adf065.gif"));
+        //super("module-screen", CachedIdentifier.of("C:\\Users\\Admin\\Pictures\\a_853765577f0168521bb2641bf8adf065.gif"));
+        super("module-screen", CachedIdentifier.of("C:\\Users\\Admin\\Pictures\\sigmasave.png"));
         groupModulesByCategory();
     }
 

@@ -5,6 +5,8 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+
 /**
  * Represents a cached texture with its metadata and resources.
  * Supports both static images and animated GIFs.
@@ -26,7 +28,7 @@ public record CachedIdentifier(
 ) {
 
     @Contract("_ -> new")
-    public static @NotNull CachedIdentifier of(String path){
+    public static @NotNull CachedIdentifier of(String path) {
         return IdentifierRegistry.loadTexture(path);
     }
 
@@ -123,7 +125,7 @@ public record CachedIdentifier(
      * @return The refreshed texture
      */
     @Contract(" -> new")
-    public @NotNull CachedIdentifier refresh() {
+    public @NotNull CachedIdentifier refresh() throws IOException {
         return IdentifierRegistry.refreshTexture(sourcePath);
     }
 
